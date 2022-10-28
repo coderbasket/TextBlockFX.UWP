@@ -40,8 +40,9 @@ namespace TextBlockFX.Win2D.UWP.Effects
         {
 
         }
+        TextEffectParam EffectParam;
         public void DrawText(string oldText,
-            string newText1,
+            string newText,
             List<TextDiffResult> diffResults,
             CanvasTextLayout oldTextLayout,
             CanvasTextLayout newTextLayout,
@@ -54,12 +55,22 @@ namespace TextBlockFX.Win2D.UWP.Effects
         {
             if (diffResults == null)
                 return;
-
+            EffectParam = new TextEffectParam(oldText,
+               newText,
+               diffResults,
+               oldTextLayout,
+               newTextLayout,
+               textFormat,
+               textColor,
+               gradientBrush,
+               state,
+               drawingSession,
+               args);
             var ds = args.DrawingSession;
             
             textLayout = newTextLayout;
             _textFormat = textFormat;
-            testString = newText1;
+            testString = newText;
             if (state == RedrawState.Idle)
             {
 

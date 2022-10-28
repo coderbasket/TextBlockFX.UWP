@@ -40,7 +40,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
         {
 
         }
-        
+        TextEffectParam EffectParam;
         public void DrawText(string oldText,
             string newText,
             List<TextDiffResult> diffResults,
@@ -50,18 +50,25 @@ namespace TextBlockFX.Win2D.UWP.Effects
             Color textColor,
             CanvasLinearGradientBrush gradientBrush,
             RedrawState state,
-            CanvasDrawingSession _drawingSession,
+            CanvasDrawingSession drawingSession,
             CanvasAnimatedDrawEventArgs args)
         {
             if (diffResults == null)
                 return;
+            EffectParam = new TextEffectParam(oldText,
+                newText, 
+                diffResults,
+                oldTextLayout, 
+                newTextLayout, 
+                textFormat, 
+                textColor,
+                gradientBrush,
+                state, 
+                drawingSession, 
+                args);
 
-            var ds = args.DrawingSession;
-            textLayout = newTextLayout;
-            _textFormat = textFormat;
-            sampleText = newText;
-            textBrush = new CanvasSolidColorBrush(ds, textColor);
-            resourceRealizationSize = textLayout.RequestedSize;
+            var ds = args.DrawingSession;           
+            resourceRealizationSize = this.EffectParam.NewTextLayout.RequestedSize;
             EnsureResources(ds, resourceRealizationSize);
             if (state == RedrawState.Idle)
             {
@@ -76,10 +83,9 @@ namespace TextBlockFX.Win2D.UWP.Effects
         {
             
         }
-        CanvasTextFormat _textFormat;
-        CanvasTextLayout textLayout;
-        CanvasSolidColorBrush textBrush;
-        string sampleText = "";
+        
+       
+       
 
         //public float CurrentFontSize { get; set; }
         //public bool UseBoldFace { get; set; }
@@ -105,13 +111,13 @@ namespace TextBlockFX.Win2D.UWP.Effects
             float canvasHeight = (float)targetSize.Height;
             sizeDim = Math.Min(canvasWidth, canvasHeight);
 
-            textBrush = new CanvasSolidColorBrush(resourceCreator, Colors.Thistle);
+            var textBrush = new CanvasSolidColorBrush(resourceCreator, Colors.Thistle);
 
             //sample
-            SetSubscript(sampleText.IndexOf("Fly") + 1, 1);
-            SetSuperscript(sampleText.IndexOf("see"), 2);
-            SetSubscript(sampleText.IndexOf("let"), "let".Length);
-            SetSuperscript(sampleText.IndexOf("words"), "words".Length);
+            SetSubscript(this.EffectParam.NewText.IndexOf("Fly") + 1, 1);
+            SetSuperscript(this.EffectParam.NewText.IndexOf("see"), 2);
+            SetSubscript(this.EffectParam.NewText.IndexOf("let"), "let".Length);
+            SetSuperscript(this.EffectParam.NewText.IndexOf("words"), "words".Length);
 
            
             resourceRealizationSize = targetSize;
@@ -123,11 +129,11 @@ namespace TextBlockFX.Win2D.UWP.Effects
         bool ShowUnformatted;
         private void Canvas_Draw(CanvasDrawingSession sender, CanvasAnimatedDrawEventArgs args)
         {
-            EnsureResources(sender, textLayout.RequestedSize);
+            EnsureResources(sender, this.EffectParam.NewTextLayout.RequestedSize);
 
             if (ShowUnformatted)
             {
-                args.DrawingSession.DrawTextLayout(textLayout, 0, 0, Colors.DarkGray);
+                args.DrawingSession.DrawTextLayout(this.EffectParam.NewTextLayout, 0, 0, Colors.DarkGray);
             }
             InitScript(args);
            
@@ -165,7 +171,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
         {
             if (subscriptSuperscriptRenderer == null)
                 subscriptSuperscriptRenderer = new SubscriptSuperscriptRenderer();
-            TextEffectsHelper.ShrinkFontAndAttachCustomBrushData(textLayout, textPosition, characterCount, CustomBrushData.BaselineAdjustmentType.Lower, _textFormat);
+            TextEffectsHelper.ShrinkFontAndAttachCustomBrushData(this.EffectParam.NewTextLayout, textPosition, characterCount, CustomBrushData.BaselineAdjustmentType.Lower, this.EffectParam.TextFormat);
         }
         /// <summary>
         /// SetSubscript(textString.IndexOf("H2O") + 1, 1);       
@@ -176,16 +182,16 @@ namespace TextBlockFX.Win2D.UWP.Effects
         {
             if (subscriptSuperscriptRenderer == null)
                 subscriptSuperscriptRenderer = new SubscriptSuperscriptRenderer();
-            TextEffectsHelper.ShrinkFontAndAttachCustomBrushData(textLayout, textPosition, characterCount, CustomBrushData.BaselineAdjustmentType.Raise, _textFormat);
+            TextEffectsHelper.ShrinkFontAndAttachCustomBrushData(this.EffectParam.NewTextLayout, textPosition, characterCount, CustomBrushData.BaselineAdjustmentType.Raise, this.EffectParam.TextFormat);
         }
         void InitScript(CanvasAnimatedDrawEventArgs args)
         {
             if (subscriptSuperscriptRenderer == null)
                 subscriptSuperscriptRenderer = new SubscriptSuperscriptRenderer();
             subscriptSuperscriptRenderer.DrawingSession = args.DrawingSession;
-            subscriptSuperscriptRenderer.TextBrush = textBrush;
+            subscriptSuperscriptRenderer.TextBrush = new CanvasSolidColorBrush(this.EffectParam.DrawingSession, this.EffectParam.TextColor);
 
-            textLayout.DrawToTextRenderer(subscriptSuperscriptRenderer, new System.Numerics.Vector2(0, 0));
+            this.EffectParam.NewTextLayout.DrawToTextRenderer(subscriptSuperscriptRenderer, new System.Numerics.Vector2(0, 0));
         }
 
 

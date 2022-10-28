@@ -7,6 +7,8 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.UI;
+using Microsoft.Graphics.Canvas.UI.Xaml;
 
 namespace TextBlockFX.Win2D.UWP
 {
@@ -39,7 +41,7 @@ namespace TextBlockFX.Win2D.UWP
         public CanvasSolidColorBrush TextBrush;
         public float SubscriptBaselineScale { get; set; } = 0.2f;
         public float SuperscriptBaselineScale { get; set; } = 0.7f;
-       
+
         public SubscriptSuperscriptRenderer()
         {
 
@@ -147,5 +149,46 @@ namespace TextBlockFX.Win2D.UWP
 
         public Matrix3x2 Transform { get { return System.Numerics.Matrix3x2.Identity; } }
     }
+    public class TextEffectParam
+    {
+        public string OldText { get; set; }
+        public string NewText { get; set; }
+        public List<TextDiffResult> DiffResults { get; set; }
+        public CanvasTextLayout OldTextLayout { get; set; }
+        public CanvasTextLayout NewTextLayout { get; set; }
+        public CanvasTextFormat TextFormat { get; set; }
+        public Color TextColor { get; set; }
+        public CanvasLinearGradientBrush GradientBrush { get; set; }
+        public RedrawState State { get; set; }
+        public CanvasDrawingSession DrawingSession { get; set; }
+        public CanvasAnimatedDrawEventArgs Arg { get; set; }
+        public TextEffectParam()
+        {
 
+        }
+        public TextEffectParam(string oldText,
+            string newText, 
+            List<TextDiffResult> texts, 
+            CanvasTextLayout oldTxtLayout,
+            CanvasTextLayout newTextLayout,
+            CanvasTextFormat textFormat,
+            Color textColor,
+            CanvasLinearGradientBrush gradientBrush,
+            RedrawState state,
+            CanvasDrawingSession drawingSession,
+             CanvasAnimatedDrawEventArgs arg)
+        {
+            this.OldText = oldText;
+            this.NewText = newText; 
+            this.DiffResults = texts;
+            this.OldTextLayout = oldTxtLayout;
+            this.NewTextLayout = newTextLayout;
+            this.TextFormat = textFormat;
+            this.TextColor = textColor; 
+            this.GradientBrush = gradientBrush;
+            this.State = state;
+            this.DrawingSession = drawingSession;
+            this.Arg = arg;
+        }
+    }
 }

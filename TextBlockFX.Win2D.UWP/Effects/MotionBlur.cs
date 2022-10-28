@@ -37,7 +37,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
         {
 
         }
-
+        TextEffectParam EffectParam;
         /// <inheritdoc />
         public void DrawText(string oldText,
             string newText,
@@ -53,7 +53,17 @@ namespace TextBlockFX.Win2D.UWP.Effects
         {
             if (diffResults == null)
                 return;
-
+            EffectParam = new TextEffectParam(oldText,
+               newText,
+               diffResults,
+               oldTextLayout,
+               newTextLayout,
+               textFormat,
+               textColor,
+               gradientBrush,
+               state,
+               drawingSession,
+               args);
             var ds = args.DrawingSession;
 
             if (state == RedrawState.Idle)
@@ -346,5 +356,5 @@ namespace TextBlockFX.Win2D.UWP.Effects
             return (radians);
         }
 
-       
+    }
 }
