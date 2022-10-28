@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using TextBlockFX;
 using TextBlockFX.Win2D.UWP;
 using TextBlockFX.Win2D.UWP.Effects;
@@ -150,7 +151,7 @@ namespace Sample.UWP
             _sampleTexts = _inOtherWords;
         }
 
-        private void MainPage_Loaded(object sender, RoutedEventArgs e)
+        private async void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
             for (int i = 0; i < FontStretches.Count; i++)
             {
@@ -175,8 +176,21 @@ namespace Sample.UWP
                     FontWeightComboBox.SelectedIndex = i;
                 }
             }
+            AutoPlayButton.IsChecked = true;
+            Start();
+            StartIndexer();
         }
-
+        async void StartIndexer()
+        {
+            int c = 0;
+            foreach(var i in BuiltInEffects)
+            {
+                await Task.Delay(3000);
+                this.EffectComboBox.SelectedIndex = c;
+                c++;
+            }
+            StartIndexer();
+        }
         private void _timer_Tick(object sender, object e)
         {
             SetSampleText();
@@ -190,6 +204,10 @@ namespace Sample.UWP
 
         private void AutoPlayButton_OnClick(object sender, RoutedEventArgs e)
         {
+            Start();
+        }
+        void Start()
+        {
             if (AutoPlayButton.IsChecked == true)
             {
                 _index = -1;
@@ -202,7 +220,6 @@ namespace Sample.UWP
                 _timer.Stop();
             }
         }
-
         private void SetSampleText()
         {
             _index = (_index + 1) % _sampleTexts.Length;
