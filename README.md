@@ -6,9 +6,10 @@ A TextBlock control which animates the text with customizable effects.
 
 TextBlockFx generates difference results for attached effect to animate the text when its content changes by using its built-in diffing algorithm.
 
-https://github.com/coderbasket/TextBlockFX.UWP/raw/master/Sample.Win2D.UWP/Screens/sampleV.mp4
 https://user-images.githubusercontent.com/8193074/147348037-efe70068-d188-4a26-a23a-c94e2b03ede9.mp4
 
+## MP4
+https://github.com/coderbasket/TextBlockFX.UWP/raw/master/Sample.Win2D.UWP/Screens/sampleV.mp4
 
 ## Get Started
 
