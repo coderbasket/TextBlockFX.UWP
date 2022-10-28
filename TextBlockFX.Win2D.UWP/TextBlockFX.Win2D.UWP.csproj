@@ -134,6 +134,7 @@
     <Compile Include="Effects\Pivot.cs" />
     <Compile Include="Effects\SuperSubscipt.cs" />
     <Compile Include="Effects\Zoom.cs" />
+    <Compile Include="Helpers\Utils.cs" />
     <Compile Include="ITextEffect.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TextEffectsHelper.cs" />
