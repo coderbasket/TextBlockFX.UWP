@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using TextBlockFX;
 using TextBlockFX.Win2D.UWP;
 using TextBlockFX.Win2D.UWP.Effects;
+using Windows.UI;
 using Windows.UI.Text;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -25,18 +26,9 @@ namespace Sample.UWP
 
         private readonly string[] _inOtherWords = new[]
         {
-            "Fly me to the 🌕moon",
-            "And let me play among the 🌟stars",
-            "Let me see what spring is like on",
-            "Jupiter and Mars",
-            "In other words, hold my hand",
-            "In other words, darling, kiss me",
-            "Fill my heart with 🎶song",
-            "And let me sing forevermore",
-            "You are all I long for",
-            "All I worship and adore",
-            "In other words, please be true",
-            "In other words, I ❤️love you",
+            "4 All men are like grass, and all their glory is like the flowers of the field; the grass withers and the flowers fall, but the word of the Lord stands forever.",
+            "5 Trust in the LORD with all your heart; and lean not to your own understanding. 6 In all your ways acknowledge him, and he shall direct your paths.",
+            
         };
 
         private readonly string[] _textsOfMencius = new[]
@@ -82,7 +74,7 @@ namespace Sample.UWP
 
         public List<BuiltInEffect> BuiltInEffects => new List<BuiltInEffect>()
         {
-            new BuiltInEffect("Advanced", new AdvanceEffect()),
+            new BuiltInEffect("Advanced", new AdvanceEffect().ApplyGlowEffect(Colors.Red).ApplyOutlineEffect(Colors.AliceBlue).ApplyGlyphEffect(Colors.Green, Colors.Orange)),
             new BuiltInEffect("Default", new Default()),
             new BuiltInEffect("Motion Blur", new MotionBlur()),
             new BuiltInEffect("Blur", new Blur()),
@@ -160,9 +152,9 @@ namespace Sample.UWP
             _sampleTexts = _inOtherWords;
             this.TBFX.SuperScripts = new List<WordBoundary>() 
             { 
-                new WordBoundary() { Words = "Fly", Length = 2 },
-                new WordBoundary() { Words = "words", Length = 2 },
-                new WordBoundary() { Words = "let", Length = 2 }
+                new WordBoundary() { Words = "5", Length = 1 },
+                new WordBoundary() { Words = "4", Length = 1 },
+                 new WordBoundary() { Words = "6", Length = 1 },
             };
         }
 

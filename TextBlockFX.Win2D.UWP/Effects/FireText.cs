@@ -66,8 +66,8 @@ namespace TextBlockFX.Win2D.UWP.Effects
                state,
                drawingSession,
                args);
-            var ds = args.DrawingSession;            
-            CreateFlameEffect();
+            var ds = args.DrawingSession;
+            
             if (state == RedrawState.Idle)
             {
 
@@ -79,12 +79,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
        
         // References to specific effects so we can dynamically update their properties.
         CanvasCommandList textCommandList;
-        MorphologyEffect morphology;
-        CompositeEffect composite;
-        Transform2DEffect flameAnimation;
-        Transform2DEffect flamePosition;
-
-        
+      BurningEffectGraph burningEffectGraph = new BurningEffectGraph();
         private void Canvas_Draw(Size size, CanvasAnimatedDrawEventArgs args)
         {
             var ds = args.DrawingSession;
@@ -94,20 +89,20 @@ namespace TextBlockFX.Win2D.UWP.Effects
             SetupText(args.DrawingSession);
             ConfigureEffect(args.Timing);
 
-            ds.DrawImage(composite, size.ToVector2() / 2);
+            ds.DrawImage(burningEffectGraph.composite, size.ToVector2() / 2);
         }
 
         private void ConfigureEffect(CanvasTimingInformation timing)
         {
             // Animate the flame by shifting the Perlin noise upwards (-Y) over time.
-            flameAnimation.TransformMatrix = Matrix3x2.CreateTranslation(0, -(float)timing.TotalTime.TotalSeconds * 60.0f);
+            burningEffectGraph.flameAnimation.TransformMatrix = Matrix3x2.CreateTranslation(0, -(float)timing.TotalTime.TotalSeconds * 60.0f);
 
             // Scale the flame effect 2x vertically, aligned so it starts above the text.
             float verticalOffset = this.EffectParam.TextFormat.FontSize * 1.4f;
 
             var centerPoint = new Vector2(0, verticalOffset);
 
-            flamePosition.TransformMatrix = Matrix3x2.CreateScale(1, 2, centerPoint);
+            burningEffectGraph.flamePosition.TransformMatrix = Matrix3x2.CreateScale(1, 2, centerPoint);
         }
 
         /// <summary>
@@ -143,8 +138,8 @@ namespace TextBlockFX.Win2D.UWP.Effects
             }
 
             // Hook up the command list to the inputs of the flame effect graph.
-            morphology.Source = textCommandList;
-            composite.Sources[1] = textCommandList;
+            burningEffectGraph.morphology.Source = textCommandList;
+            burningEffectGraph.composite.Sources[1] = textCommandList;
         }
 
         /// <summary>
@@ -162,105 +157,8 @@ namespace TextBlockFX.Win2D.UWP.Effects
         /// Generate the flame effect graph. This method is called before the text command list
         /// (input) is created.
         /// </summary>
-        private void CreateFlameEffect()
-        {
-            // Thicken the text.
-            morphology = new MorphologyEffect
-            {
-                // The Source property is set by SetupText().
-                Mode = MorphologyEffectMode.Dilate,
-                Width = 7,
-                Height = 1
-            };
-
-            // Blur, then colorize the text from black to red to orange as the alpha increases.
-            var colorize = new ColorMatrixEffect
-            {
-                Source = new GaussianBlurEffect
-                {
-                    Source = morphology,
-                    BlurAmount = 3f
-                },
-                ColorMatrix = new Matrix5x4
-                {
-                    M11 = 0f,
-                    M12 = 0f,
-                    M13 = 0f,
-                    M14 = 0f,
-                    M21 = 0f,
-                    M22 = 0f,
-                    M23 = 0f,
-                    M24 = 0f,
-                    M31 = 0f,
-                    M32 = 0f,
-                    M33 = 0f,
-                    M34 = 0f,
-                    M41 = 0f,
-                    M42 = 1f,
-                    M43 = 0f,
-                    M44 = 1f,
-                    M51 = 1f,
-                    M52 = -0.5f,
-                    M53 = 0f,
-                    M54 = 0f
-                }
-            };
-
-            // Generate a Perlin noise field (see flamePosition).
-            // Animate the noise by modifying flameAnimation's transform matrix at render time.
-            flameAnimation = new Transform2DEffect
-            {
-                Source = new BorderEffect
-                {
-                    Source = new TurbulenceEffect
-                    {
-                        Frequency = new Vector2(0.109f, 0.109f),
-                        Size = new Vector2(500.0f, 80.0f)
-                    },
-                    // Use Mirror extend mode to allow us to spatially translate the noise
-                    // without any visible seams.
-                    ExtendX = CanvasEdgeBehavior.Mirror,
-                    ExtendY = CanvasEdgeBehavior.Mirror
-                }
-            };
-
-            // Give the flame its wavy appearance by generating a displacement map from the noise
-            // (see flameAnimation) and applying this to the text.
-            // Stretch and position this flame behind the original text.
-            flamePosition = new Transform2DEffect
-            {
-                Source = new DisplacementMapEffect
-                {
-                    Source = colorize,
-                    Displacement = flameAnimation,
-                    Amount = 40.0f
-                }
-                // Set the transform matrix at render time as it depends on window size.
-            };
-
-            // Composite the text over the flames.
-            composite = new CompositeEffect()
-            {
-                Sources = { flamePosition, null }
-                // Replace null with the text command list when it is created.
-            };
-        }
-
        
 
-        // Alternative entrypoint for use by AppIconGenerator.
-        internal void DrawIcon(CanvasDrawingSession drawingSession)
-        {
-            
-            this.EffectParam.TextFormat.FontSize = 64;
-
-            CreateFlameEffect();
-            SetupText(drawingSession);
-            ConfigureEffect(new CanvasTimingInformation());
-
-            drawingSession.DrawImage(flamePosition);
-            drawingSession.DrawImage(textCommandList);
-        }
         
     }
 }

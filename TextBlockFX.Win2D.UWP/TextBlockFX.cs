@@ -195,6 +195,15 @@ namespace TextBlockFX.Win2D.UWP
                 _superScripts = value;            
             }
         }
+        List<WordBoundary> _subScripts;
+        public List<WordBoundary> SubScripts
+        {
+            get { return _subScripts; }
+            set
+            {
+                _subScripts = value;
+            }
+        }
         /// <summary>
         /// Gets whether TextBlockFX is animating the text.
         /// </summary>

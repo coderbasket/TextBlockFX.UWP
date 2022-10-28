@@ -138,6 +138,13 @@
     <Compile Include="Helpers\Utils.cs" />
     <Compile Include="ITextEffect.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Raws\BurningEffectGraph.cs" />
+    <Compile Include="Raws\CustomBrushData.cs" />
+    <Compile Include="Raws\CustomTextRenderer.cs" />
+    <Compile Include="Raws\GlowEffectGraph.cs" />
+    <Compile Include="Raws\GlyphRunsToGeometryConverter.cs" />
+    <Compile Include="Raws\SubscriptSuperscriptRenderer.cs" />
+    <Compile Include="Raws\TextEffectParam.cs" />
     <Compile Include="TextEffectsHelper.cs" />
     <Compile Include="TextRenderingHelper.cs" />
     <Compile Include="TextBlockFX.cs" />
