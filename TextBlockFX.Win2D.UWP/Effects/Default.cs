@@ -36,9 +36,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
         {
 
         }
-        CanvasTextLayout textLayout;
-        CanvasTextFormat _textFormat;
-        CanvasSolidColorBrush textBrush;
+        
 
         TextEffectParam EffectParam;
         /// <inheritdoc />
@@ -68,9 +66,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
                drawingSession,
                args);
             var ds = args.DrawingSession;
-            textLayout = newTextLayout;
-            _textFormat = textFormat;
-            textBrush = new CanvasSolidColorBrush(ds, textColor);
+           
             if (state == RedrawState.Idle)
             {
                 DrawIdle(ds,

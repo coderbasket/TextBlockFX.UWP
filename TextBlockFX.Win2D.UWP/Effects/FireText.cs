@@ -41,7 +41,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
         }
         TextEffectParam EffectParam;
         public void DrawText(string oldText,
-            string newText1,
+            string newText,
             List<TextDiffResult> diffResults,
             CanvasTextLayout oldTextLayout,
             CanvasTextLayout newTextLayout,
@@ -65,11 +65,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
                state,
                drawingSession,
                args);
-            var ds = args.DrawingSession;
-            text = oldText;
-            newText = newText1;
-            _textFormat = textFormat;
-            _textColor = textColor;
+            var ds = args.DrawingSession;            
             CreateFlameEffect();
             if (state == RedrawState.Idle)
             {
@@ -79,17 +75,13 @@ namespace TextBlockFX.Win2D.UWP.Effects
             }
             Canvas_Draw(newTextLayout.RequestedSize, args);
         }
-        Color _textColor = Colors.White;
-        CanvasTextFormat _textFormat;
+       
         // References to specific effects so we can dynamically update their properties.
         CanvasCommandList textCommandList;
         MorphologyEffect morphology;
         CompositeEffect composite;
         Transform2DEffect flameAnimation;
         Transform2DEffect flamePosition;
-
-        string text, newText;
-        float fontSize;
 
         
         private void Canvas_Draw(Size size, CanvasAnimatedDrawEventArgs args)
@@ -98,13 +90,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
 
             // If the text or font size has changed then recreate the text command list.
             var newFontSize = GetFontSize(size);
-            if (newText != text || newFontSize != fontSize)
-            {
-                text = newText;
-                fontSize = newFontSize;
-                SetupText(args.DrawingSession);
-            };
-
+            SetupText(args.DrawingSession);
             ConfigureEffect(args.Timing);
 
             ds.DrawImage(composite, size.ToVector2() / 2);
@@ -116,7 +102,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
             flameAnimation.TransformMatrix = Matrix3x2.CreateTranslation(0, -(float)timing.TotalTime.TotalSeconds * 60.0f);
 
             // Scale the flame effect 2x vertically, aligned so it starts above the text.
-            float verticalOffset = fontSize * 1.4f;
+            float verticalOffset = this.EffectParam.TextFormat.FontSize * 1.4f;
 
             var centerPoint = new Vector2(0, verticalOffset);
 
@@ -133,22 +119,22 @@ namespace TextBlockFX.Win2D.UWP.Effects
 
             using (var ds = textCommandList.CreateDrawingSession())
             {
-                fontSize = _textFormat.FontSize;
+                
                 ds.Clear(Color.FromArgb(0, 0, 0, 0));
-                _textFormat.VerticalAlignment = CanvasVerticalAlignment.Top;
-                _textFormat.HorizontalAlignment = CanvasHorizontalAlignment.Center;
+                this.EffectParam.TextFormat.VerticalAlignment = CanvasVerticalAlignment.Top;
+                this.EffectParam.TextFormat.HorizontalAlignment = CanvasHorizontalAlignment.Center;
                 ds.DrawText(
-                    text,
+                    this.EffectParam.NewText,
                     0,
                     0,
-                    _textColor,
+                    this.EffectParam.TextColor,
                     new CanvasTextFormat
                     {
-                        FontFamily = _textFormat.FontFamily,
-                        FontStretch = _textFormat.FontStretch,
-                        FontWeight = _textFormat.FontWeight,
-                        FontStyle = _textFormat.FontStyle,                      
-                        FontSize = fontSize,
+                        FontFamily = this.EffectParam.TextFormat.FontFamily,
+                        FontStretch = this.EffectParam.TextFormat.FontStretch,
+                        FontWeight = this.EffectParam.TextFormat.FontWeight,
+                        FontStyle = this.EffectParam.TextFormat.FontStyle,                      
+                        FontSize = this.EffectParam.TextFormat.FontSize,
                         HorizontalAlignment = CanvasHorizontalAlignment.Center,
                         VerticalAlignment = CanvasVerticalAlignment.Top
                     });
@@ -264,8 +250,8 @@ namespace TextBlockFX.Win2D.UWP.Effects
         // Alternative entrypoint for use by AppIconGenerator.
         internal void DrawIcon(CanvasDrawingSession drawingSession, string text)
         {
-            this.text = text;
-            this.fontSize = 64;
+            this.EffectParam.NewText = text;
+            this.EffectParam.TextFormat.FontSize = 64;
 
             CreateFlameEffect();
             SetupText(drawingSession);
