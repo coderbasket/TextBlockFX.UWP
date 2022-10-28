@@ -123,7 +123,7 @@
     <GenerateLibraryLayout>true</GenerateLibraryLayout>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Effects\AdvancedText.cs" />
+    <Compile Include="Effects\AdvanceEffect.cs" />
     <Compile Include="Effects\Blur.cs" />
     <Compile Include="Effects\Elastic.cs" />
     <Compile Include="Effects\Default.cs" />
