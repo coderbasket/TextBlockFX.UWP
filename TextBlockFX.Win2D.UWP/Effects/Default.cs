@@ -18,6 +18,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
     /// </summary>
     public class Default : ITextEffect
     {
+        public object Sender { get; set; }
         /// <inheritdoc />
         public TimeSpan AnimationDuration { get; set; } = TimeSpan.FromMilliseconds(800);
 
@@ -25,7 +26,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
         public TimeSpan DelayPerCluster { get; set; } = TimeSpan.FromMilliseconds(10);
 
         /// <inheritdoc />
-        public void Update(string oldText,
+        public void Update( string oldText,
             string newText,
             List<TextDiffResult> diffResults,
             CanvasTextLayout oldTextLayout,
@@ -40,7 +41,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
 
         TextEffectParam EffectParam;
         /// <inheritdoc />
-        public void DrawText(string oldText,
+        public void DrawText( string oldText,
             string newText,
             List<TextDiffResult> diffResults,
             CanvasTextLayout oldTextLayout,
@@ -54,7 +55,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
         {
             if (diffResults == null)
                 return;
-            EffectParam = new TextEffectParam(oldText,
+            EffectParam = new TextEffectParam( oldText,
                newText,
                diffResults,
                oldTextLayout,

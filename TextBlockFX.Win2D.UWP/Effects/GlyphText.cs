@@ -22,12 +22,13 @@ namespace TextBlockFX.Win2D.UWP.Effects
 {
     public class GlyphText : ITextEffect
     {
+        public object Sender { get; set; }
         /// <inheritdoc />
         public TimeSpan AnimationDuration { get; set; } = TimeSpan.FromMilliseconds(800);
 
         /// <inheritdoc />
         public TimeSpan DelayPerCluster { get; set; } = TimeSpan.FromMilliseconds(10);
-        public void Update(string oldText,
+        public void Update( string oldText,
             string newText,
             List<TextDiffResult> diffResults,
             CanvasTextLayout oldTextLayout,
@@ -46,7 +47,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
 
         }
         TextEffectParam EffectParam;
-        public void DrawText(string oldText,
+        public void DrawText( string oldText,
             string newText,
             List<TextDiffResult> diffResults,
             CanvasTextLayout oldTextLayout,
@@ -60,7 +61,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
         {
             if (diffResults == null)
                 return;
-            EffectParam = new TextEffectParam(oldText,
+            EffectParam = new TextEffectParam( oldText,
                 newText,
                 diffResults,
                 oldTextLayout,
@@ -72,14 +73,10 @@ namespace TextBlockFX.Win2D.UWP.Effects
                 drawingSession,
                 args);
             var ds = args.DrawingSession;
-            textLayout = newTextLayout;
-            testString = newText;
-            _textFormat = textFormat;
-            everyOtherWordBoundary = Utils.GetEveryOtherWord(testString);
+            everyOtherWordBoundary = Utils.GetEveryOtherWord(newText);
             EnsureResources(ds, newTextLayout.RequestedSize);
             if (state == RedrawState.Idle)
             {
-
                 Canvas_Draw(ds, args);
                 return;
             }
@@ -92,19 +89,13 @@ namespace TextBlockFX.Win2D.UWP.Effects
             CurrentVerticalGlyphOrientation = CanvasVerticalGlyphOrientation.Default;
 
             ShowNonCustomText = true;
-
-            testString = "";
-
-            everyOtherWordBoundary = Utils.GetEveryOtherWord(testString);
         }
         //Engine
-        CanvasTextFormat _textFormat;
-         CanvasTextLayout textLayout;
+       
         CanvasGeometry textReference;
-        List<Utils.WordBoundary> everyOtherWordBoundary;
+        List<WordBoundary> everyOtherWordBoundary;
         CanvasSolidColorBrush textBrush;
-        string testString;
-
+       
         public bool ShowNonCustomText { get; set; }
 
         bool needsResourceRecreation = true;
@@ -251,7 +242,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
 
            ApplyToTextLayout(resourceCreator, (float)targetSize.Width, (float)targetSize.Height);
 
-            textReference = CanvasGeometry.CreateText(textLayout);
+            textReference = CanvasGeometry.CreateText(this.EffectParam.NewTextLayout);
 
             textBrush = new CanvasSolidColorBrush(resourceCreator, TextBrush);
         }
@@ -260,46 +251,38 @@ namespace TextBlockFX.Win2D.UWP.Effects
         {
             float sizeDim = Math.Min(canvasWidth, canvasHeight);
 
-            CanvasTextFormat textFormat = new CanvasTextFormat()
-            {
-                FontSize = sizeDim * 0.085f, // sizeDim * 0.25f : sizeDim * 0.085f,
-                Direction = CurrentTextDirection,
-                FontFamily = _textFormat.FontFamily,
-                FontStretch = _textFormat.FontStretch,
-                FontStyle = _textFormat.FontStyle,
-                FontWeight = _textFormat.FontWeight,
-            };
+            
 
             //CanvasTextLayout textLayout = new CanvasTextLayout(resourceCreator, testString, textFormat, canvasWidth, canvasHeight);
 
             if (CurrentTextEffectOption == TextEffectOption.UnderlineEveryOtherWord)
             {
-                foreach (Utils.WordBoundary wb in everyOtherWordBoundary)
+                foreach (WordBoundary wb in everyOtherWordBoundary)
                 {
-                    textLayout.SetUnderline(wb.Start, wb.Length, true);
+                    this.EffectParam.NewTextLayout.SetUnderline(wb.Start, wb.Length, true);
                 }
             }
             else if (CurrentTextEffectOption == TextEffectOption.StrikeEveryOtherWord)
             {
-                foreach (Utils.WordBoundary wb in everyOtherWordBoundary)
+                foreach (WordBoundary wb in everyOtherWordBoundary)
                 {
-                    textLayout.SetStrikethrough(wb.Start, wb.Length, true);
+                    this.EffectParam.NewTextLayout.SetStrikethrough(wb.Start, wb.Length, true);
                 }
             }
 
-            textLayout.VerticalGlyphOrientation = CurrentVerticalGlyphOrientation;
+            this.EffectParam.NewTextLayout.VerticalGlyphOrientation = CurrentVerticalGlyphOrientation;
 
            
         }
         static CanvasDrawingSession drawingSession;
         private void Canvas_Draw(CanvasDrawingSession senser, CanvasAnimatedDrawEventArgs args)
         {
-            EnsureResources(senser, textLayout.RequestedSize);
+            EnsureResources(senser, this.EffectParam.NewTextLayout.RequestedSize);
 
             drawingSession = args.DrawingSession;
 
             CustomTextRenderer textRenderer = new CustomTextRenderer(textBrush);
-            textLayout.DrawToTextRenderer(textRenderer, 0, 0);
+            this.EffectParam.NewTextLayout.DrawToTextRenderer(textRenderer, 0, 0);
 
             if (ShowNonCustomText)
             {

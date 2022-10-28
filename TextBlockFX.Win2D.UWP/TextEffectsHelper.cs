@@ -151,17 +151,17 @@ namespace TextBlockFX.Win2D.UWP
     }
     public class TextEffectParam
     {
-        public string OldText { get; set; }
-        public string NewText { get; set; }
-        public List<TextDiffResult> DiffResults { get; set; }
-        public CanvasTextLayout OldTextLayout { get; set; }
-        public CanvasTextLayout NewTextLayout { get; set; }
-        public CanvasTextFormat TextFormat { get; set; }
-        public Color TextColor { get; set; }
-        public CanvasLinearGradientBrush GradientBrush { get; set; }
-        public RedrawState State { get; set; }
-        public CanvasDrawingSession DrawingSession { get; set; }
-        public CanvasAnimatedDrawEventArgs Arg { get; set; }
+        public string OldText { get;}
+        public string NewText { get;  }
+        public List<TextDiffResult> DiffResults { get;  }
+        public CanvasTextLayout OldTextLayout { get;  }
+        public CanvasTextLayout NewTextLayout { get; }
+        public CanvasTextFormat TextFormat { get;  }
+        public Color TextColor { get;  }
+        public CanvasLinearGradientBrush GradientBrush { get;  }
+        public RedrawState State { get;  }
+        public CanvasDrawingSession DrawingSession { get;  }
+        public CanvasAnimatedDrawEventArgs Arg { get;  }
         public TextEffectParam()
         {
 

@@ -21,12 +21,13 @@ namespace TextBlockFX.Win2D.UWP.Effects
 {
     public class GlowText : ITextEffect
     {
+        public object Sender { get; set; }
         /// <inheritdoc />
         public TimeSpan AnimationDuration { get; set; } = TimeSpan.FromMilliseconds(800);
 
         /// <inheritdoc />
         public TimeSpan DelayPerCluster { get; set; } = TimeSpan.FromMilliseconds(10);
-        public void Update(string oldText,
+        public void Update( string oldText,
             string newText,
             List<TextDiffResult> diffResults,
             CanvasTextLayout oldTextLayout,
@@ -38,7 +39,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
 
         }
         TextEffectParam EffectParam;
-        public void DrawText(string oldText,
+        public void DrawText( string oldText,
             string newText,
             List<TextDiffResult> diffResults,
             CanvasTextLayout oldTextLayout,
@@ -63,8 +64,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
                state,
                drawingSession,
                args);
-            textLayout = newTextLayout;
-            TextColor = textColor;
+          
             var ds = args.DrawingSession;
 
             if (state == RedrawState.Idle)
@@ -76,13 +76,13 @@ namespace TextBlockFX.Win2D.UWP.Effects
             DoEffect(drawingSession, newTextLayout.RequestedSize, GlowAmount, newText);
 
         }
-        CanvasTextLayout textLayout;
+        
         public HorizontalAlignment HorizontalContentAlignment { get; set; } = HorizontalAlignment.Stretch;
         public VerticalAlignment VerticalContentAlignment { get; set; } = VerticalAlignment.Center;
         public double ExpandAmount { get; set; } = 40;
         public float GlowAmount { get; set; } = 40;
         public  Color GlowColor { get; set; } = Colors.BlueViolet;
-       public Color TextColor { get; set; } = Colors.White;
+       
         private GlowEffectGraph glowEffectGraph = new GlowEffectGraph();
         private void DoEffect(CanvasDrawingSession ds, Size size, float amount, string text)
         {
@@ -96,19 +96,16 @@ namespace TextBlockFX.Win2D.UWP.Effects
             {
                 using (var textDs = textCommandList.CreateDrawingSession())
                 {
-                    textDs.DrawTextLayout(textLayout, 0, 0, GlowColor);
+                    textDs.DrawTextLayout(this.EffectParam.NewTextLayout, 0, 0, GlowColor);
                 }
 
                 glowEffectGraph.Setup(textCommandList, amount);
                 ds.DrawImage(glowEffectGraph.Output, offset, offset);
 
-                ds.DrawTextLayout(textLayout, offset, offset, TextColor);
+                ds.DrawTextLayout(this.EffectParam.NewTextLayout, offset, offset, this.EffectParam.TextColor);
             }
         }
-        private void ApplyToTextLayout(ICanvasResourceCreator resourceCreator, Size size, string text)
-        {
-           
-        }
+       
         private CanvasHorizontalAlignment GetCanvasHorizontalAlignemnt()
         {
             switch (HorizontalContentAlignment)

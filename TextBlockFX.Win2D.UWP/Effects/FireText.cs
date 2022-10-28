@@ -24,11 +24,12 @@ namespace TextBlockFX.Win2D.UWP.Effects
 {
     public class FireText : ITextEffect
     {
+        public object Sender { get; set; }
         public TimeSpan AnimationDuration { get; set; } = TimeSpan.FromMilliseconds(800);
 
         /// <inheritdoc />
         public TimeSpan DelayPerCluster { get; set; } = TimeSpan.FromMilliseconds(10);
-        public void Update(string oldText,
+        public void Update( string oldText,
             string newText,
             List<TextDiffResult> diffResults,
             CanvasTextLayout oldTextLayout,
@@ -40,7 +41,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
 
         }
         TextEffectParam EffectParam;
-        public void DrawText(string oldText,
+        public void DrawText( string oldText,
             string newText,
             List<TextDiffResult> diffResults,
             CanvasTextLayout oldTextLayout,
@@ -54,7 +55,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
         {
             if (diffResults == null)
                 return;
-            EffectParam = new TextEffectParam(oldText,
+            EffectParam = new TextEffectParam( oldText,
                newText,
                diffResults,
                oldTextLayout,
@@ -248,9 +249,9 @@ namespace TextBlockFX.Win2D.UWP.Effects
        
 
         // Alternative entrypoint for use by AppIconGenerator.
-        internal void DrawIcon(CanvasDrawingSession drawingSession, string text)
+        internal void DrawIcon(CanvasDrawingSession drawingSession)
         {
-            this.EffectParam.NewText = text;
+            
             this.EffectParam.TextFormat.FontSize = 64;
 
             CreateFlameEffect();

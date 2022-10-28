@@ -14,6 +14,8 @@ namespace TextBlockFX.Win2D.UWP
 {
     public interface ITextEffect
     {
+        
+        object Sender { get; set; }
         /// <summary>
         /// Gets or sets the length of time that the animation takes.
         /// </summary>

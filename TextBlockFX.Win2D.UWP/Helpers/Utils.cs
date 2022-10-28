@@ -7,6 +7,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace TextBlockFX.Win2D.UWP
 {
@@ -99,7 +100,7 @@ namespace TextBlockFX.Win2D.UWP
             }
         }
 
-        public struct WordBoundary { public int Start; public int Length; }
+       
 
         public static List<WordBoundary> GetEveryOtherWord(string str)
         {
@@ -122,4 +123,5 @@ namespace TextBlockFX.Win2D.UWP
             return result;
         }
     }
+    public struct WordBoundary { public string Words; public int Start; public int Length; }
 }

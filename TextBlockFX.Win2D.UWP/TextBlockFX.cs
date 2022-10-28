@@ -105,6 +105,7 @@ namespace TextBlockFX.Win2D.UWP
             set
             {
                 _textEffect = value;
+                _textEffect.Sender = this;
                 SetValue(TextEffectProperty, value);
             }
         }
@@ -185,6 +186,15 @@ namespace TextBlockFX.Win2D.UWP
             }
         }
 
+        List<WordBoundary> _superScripts;
+        public List<WordBoundary> SuperScripts
+        {
+            get { return _superScripts; }
+            set
+            {
+                _superScripts = value;            
+            }
+        }
         /// <summary>
         /// Gets whether TextBlockFX is animating the text.
         /// </summary>

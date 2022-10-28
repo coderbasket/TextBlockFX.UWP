@@ -18,6 +18,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
     /// </summary>
     public class Zoom : ITextEffect
     {
+        public object Sender { get; set; }
         /// <inheritdoc />
         public TimeSpan AnimationDuration { get; set; } = TimeSpan.FromMilliseconds(800);
 

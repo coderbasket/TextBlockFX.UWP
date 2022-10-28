@@ -15,6 +15,8 @@ using Windows.UI.Text;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml;
+using Windows.ApplicationModel.Core;
+using Windows.UI.Core;
 
 #if WINDOWS
 namespace TextBlockFX.Win2D.WinUI.Effects
@@ -22,7 +24,7 @@ namespace TextBlockFX.Win2D.WinUI.Effects
 namespace TextBlockFX.Win2D.UWP.Effects
 #endif
 {
-    public class SuperSubscipt : ITextEffect
+    public class AdvanceEffect : ITextEffect
     {
         public object Sender { get; set; }
         /// <inheritdoc />
@@ -30,7 +32,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
 
         /// <inheritdoc />
         public TimeSpan DelayPerCluster { get; set; } = TimeSpan.FromMilliseconds(10);
-        public void Update( string oldText,
+        public void Update(string oldText,
             string newText,
             List<TextDiffResult> diffResults,
             CanvasTextLayout oldTextLayout,
@@ -56,21 +58,21 @@ namespace TextBlockFX.Win2D.UWP.Effects
         {
             if (diffResults == null)
                 return;
-            EffectParam = new TextEffectParam( oldText,
-                newText, 
+            EffectParam = new TextEffectParam(oldText,
+                newText,
                 diffResults,
-                oldTextLayout, 
-                newTextLayout, 
-                textFormat, 
+                oldTextLayout,
+                newTextLayout,
+                textFormat,
                 textColor,
                 gradientBrush,
-                state, 
-                drawingSession, 
+                state,
+                drawingSession,
                 args);
 
-            var ds = args.DrawingSession;           
-            resourceRealizationSize = this.EffectParam.NewTextLayout.RequestedSize;
-            EnsureResources(ds, resourceRealizationSize);
+            var ds = args.DrawingSession;
+
+            EnsureResources(ds);
             if (state == RedrawState.Idle)
             {
 
@@ -80,87 +82,57 @@ namespace TextBlockFX.Win2D.UWP.Effects
             Canvas_Draw(ds, args);
         }
         //Engine
-        public SuperSubscipt()
+        public AdvanceEffect()
         {
-            
+
         }
-        
-       
-       
 
-        //public float CurrentFontSize { get; set; }
-        //public bool UseBoldFace { get; set; }
-        //public bool UseItalicFace { get; set; }
-        //public bool ShowUnformatted { get; set; }
 
-        
 
-        //
-        // When implementing an actual subscript/superscript typography option,
-        // a font author will fine-tune the placement of baselines based on how the font
-        // itself looks and is measured. Adjusting these values may look better
-        // on some fonts.
-        // We picked some reasonable default choices for these.
-
-        bool needsResourceRecreationb= true;
-        Size resourceRealizationSize;
-        float sizeDim;
-        void EnsureResources(ICanvasResourceCreatorWithDpi resourceCreator, Size targetSize)
+        void EnsureResources(ICanvasResourceCreatorWithDpi resourceCreator)
         {
-            
+            var targetSize = this.EffectParam.NewTextLayout.RequestedSize;
             float canvasWidth = (float)targetSize.Width;
             float canvasHeight = (float)targetSize.Height;
-            sizeDim = Math.Min(canvasWidth, canvasHeight);
+            var sizeDim = Math.Min(canvasWidth, canvasHeight);
 
             var textBrush = new CanvasSolidColorBrush(resourceCreator, Colors.Thistle);
-
-            //sample
-            SetSubscript(this.EffectParam.NewText.IndexOf("Fly") + 1, 1);
-            SetSuperscript(this.EffectParam.NewText.IndexOf("see"), 2);
-            SetSubscript(this.EffectParam.NewText.IndexOf("let"), "let".Length);
-            SetSuperscript(this.EffectParam.NewText.IndexOf("words"), "words".Length);
-
-           
-            resourceRealizationSize = targetSize;
+            SetScript();
+        }
+        bool process = false;
+        void SetScript()
+        {
+            if (process)
+                return;
+            process = true;
+            if (this.Sender is TextBlockFX fx)
+            {
+                foreach (var sp in fx.SuperScripts)
+                {
+                    SetSuperscript(this.EffectParam.NewText.IndexOf(sp.Words), sp.Length);
+                }
+            }
+            process = false;
         }
 
-       
-        
+
 
         bool ShowUnformatted;
         private void Canvas_Draw(CanvasDrawingSession sender, CanvasAnimatedDrawEventArgs args)
         {
-            EnsureResources(sender, this.EffectParam.NewTextLayout.RequestedSize);
+            EnsureResources(sender);
 
             if (ShowUnformatted)
             {
                 args.DrawingSession.DrawTextLayout(this.EffectParam.NewTextLayout, 0, 0, Colors.DarkGray);
             }
-            InitScript(args);
-           
+            args.DrawingSession.DrawTextLayout(this.EffectParam.NewTextLayout, 0, 0, Colors.Transparent);
+            InitScript();
+
         }
 
 
         #region Script
-        // We need some means of telling the text layout which characters
-        // are subscript and which are superscript; keying off the font size
-        // isn't enough, if we want to be able to mix subscript and superscript
-        // together.
-        //
-        // CustomBrushData is a piece of metadata we can attach to characters
-        // which describes whether they're superscript or subscript. Since it's all 
-        // handled by SetCustomBrush, we don't need to buffer any data, do any thinking
-        // about character ranges, or optimize things for where formatting changes are.
-        //
-        // SetCustomBrush is a really flexible way of attaching some supplementary
-        // drawing data to individual characters, and here it's a way of informing
-        // SubscriptSuperscriptRenderer how to adjust baselines.
-        //
-        // If you'd prefer not to use CustomBrushData, or for some reason you need
-        // to set the custom brush to something else, it'd also work to store 
-        // superscript/subscript info in the text renderer itself.
-        // 
-
 
         SubscriptSuperscriptRenderer subscriptSuperscriptRenderer = null;
         /// <summary>
@@ -185,26 +157,15 @@ namespace TextBlockFX.Win2D.UWP.Effects
                 subscriptSuperscriptRenderer = new SubscriptSuperscriptRenderer();
             TextEffectsHelper.ShrinkFontAndAttachCustomBrushData(this.EffectParam.NewTextLayout, textPosition, characterCount, CustomBrushData.BaselineAdjustmentType.Raise, this.EffectParam.TextFormat);
         }
-        void InitScript(CanvasAnimatedDrawEventArgs args)
+        void InitScript()
         {
             if (subscriptSuperscriptRenderer == null)
                 subscriptSuperscriptRenderer = new SubscriptSuperscriptRenderer();
-            subscriptSuperscriptRenderer.DrawingSession = args.DrawingSession;
+            subscriptSuperscriptRenderer.DrawingSession = this.EffectParam.DrawingSession;
             subscriptSuperscriptRenderer.TextBrush = new CanvasSolidColorBrush(this.EffectParam.DrawingSession, this.EffectParam.TextColor);
 
             this.EffectParam.NewTextLayout.DrawToTextRenderer(subscriptSuperscriptRenderer, new System.Numerics.Vector2(0, 0));
         }
-
-
-        // 
-        // There's a limitation to this approach of shrinking text/adjusting baselines, 
-        // worth calling out. If there's an entire line of just subscript or an entire line
-        // of just superscript, the overall line height will be short compared to full-size
-        // text. Admittedly, this is a rather contrived and rare situation; it can be fixed by
-        // inserting invisible full-size whitespace characters into your text. This approach
-        // works for a vast majority of cases.
-        //
-
         #endregion
 
     }

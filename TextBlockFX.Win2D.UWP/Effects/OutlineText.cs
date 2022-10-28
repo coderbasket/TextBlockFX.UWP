@@ -25,11 +25,12 @@ namespace TextBlockFX.Win2D.UWP.Effects
 {
     public class OutlineText : ITextEffect
     {
+        public object Sender { get; set; }
         public TimeSpan AnimationDuration { get; set; } = TimeSpan.FromMilliseconds(800);
 
         /// <inheritdoc />
         public TimeSpan DelayPerCluster { get; set; } = TimeSpan.FromMilliseconds(10);
-        public void Update(string oldText,
+        public void Update( string oldText,
             string newText,
             List<TextDiffResult> diffResults,
             CanvasTextLayout oldTextLayout,
@@ -83,7 +84,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
             DashStyle = CanvasDashStyle.Dash
         };
        
-        List<Utils.WordBoundary> everyOtherWordBoundary;
+        List<WordBoundary> everyOtherWordBoundary;
 
         public bool ShowNonOutlineText { get; set; }
 

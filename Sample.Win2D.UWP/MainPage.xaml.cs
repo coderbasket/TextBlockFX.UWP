@@ -82,6 +82,7 @@ namespace Sample.UWP
 
         public List<BuiltInEffect> BuiltInEffects => new List<BuiltInEffect>()
         {
+            new BuiltInEffect("Advanced", new AdvanceEffect()),
             new BuiltInEffect("Default", new Default()),
             new BuiltInEffect("Motion Blur", new MotionBlur()),
             new BuiltInEffect("Blur", new Blur()),
@@ -157,6 +158,12 @@ namespace Sample.UWP
             _timer.Interval = TimeSpan.FromMilliseconds(1000);
             _timer.Tick += _timer_Tick;
             _sampleTexts = _inOtherWords;
+            this.TBFX.SuperScripts = new List<WordBoundary>() 
+            { 
+                new WordBoundary() { Words = "Fly", Length = 2 },
+                new WordBoundary() { Words = "words", Length = 2 },
+                new WordBoundary() { Words = "let", Length = 2 }
+            };
         }
 
         private async void MainPage_Loaded(object sender, RoutedEventArgs e)

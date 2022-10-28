@@ -19,6 +19,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
     /// </summary>
     public class Blur : ITextEffect
     {
+        public object Sender { get; set; }
         /// <inheritdoc />
         public TimeSpan AnimationDuration { get; set; } = TimeSpan.FromMilliseconds(800);
 
@@ -38,7 +39,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
         }
         TextEffectParam EffectParam;
         /// <inheritdoc />
-        public void DrawText(string oldText,
+        public void DrawText( string oldText,
             string newText,
             List<TextDiffResult> diffResults,
             CanvasTextLayout oldTextLayout,
