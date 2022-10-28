@@ -9,7 +9,11 @@ TextBlockFx generates difference results for attached effect to animate the text
 https://user-images.githubusercontent.com/8193074/147348037-efe70068-d188-4a26-a23a-c94e2b03ede9.mp4
 
 ## MP4
-https://github.com/coderbasket/TextBlockFX.UWP/raw/master/Sample.Win2D.UWP/Screens/sampleV.mp4
+
+
+https://user-images.githubusercontent.com/97447955/198494502-999d58a7-06ec-4ac4-bc85-bdd0fb8207bc.mp4
+
+
 
 ## Get Started
 
