@@ -331,5 +331,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
             float radians = ((MathF.PI / 180) * degrees);
             return (radians);
         }
+
+        
     }
 }

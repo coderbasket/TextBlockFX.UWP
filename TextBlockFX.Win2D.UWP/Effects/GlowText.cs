@@ -132,6 +132,8 @@ namespace TextBlockFX.Win2D.UWP.Effects
                     return CanvasVerticalAlignment.Top;
             }
         }
+
+       
     }
     class GlowEffectGraph
     {
@@ -170,5 +172,6 @@ namespace TextBlockFX.Win2D.UWP.Effects
             morphology.Height = (int)Math.Ceiling(halfAmount);
             blur.BlurAmount = halfAmount;
         }
+       
     }
 }

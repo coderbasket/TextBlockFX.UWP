@@ -263,7 +263,6 @@ namespace TextBlockFX.Win2D.UWP.Effects
             drawingSession.DrawImage(flamePosition);
             drawingSession.DrawImage(textCommandList);
         }
-
-       
+        
     }
 }

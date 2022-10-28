@@ -319,17 +319,6 @@ namespace TextBlockFX.Win2D.UWP.Effects
             }
         }
         
-        private void Canvas_CreateResources(CanvasControl sender, object args)
-        {
-            needsResourceRecreation = true;
-        }
-
-        private void Canvas_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            needsResourceRecreation = true;
-        }
-
-       
     }
     static class Utils
     {

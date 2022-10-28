@@ -71,5 +71,6 @@ namespace TextBlockFX.Win2D.UWP
 
             return cluster.LayoutBounds;
         }
+
     }
 }

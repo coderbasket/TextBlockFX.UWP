@@ -36,7 +36,9 @@ namespace TextBlockFX.Win2D.UWP.Effects
         {
 
         }
-
+        CanvasTextLayout textLayout;
+        CanvasTextFormat _textFormat;
+        CanvasSolidColorBrush textBrush;
         /// <inheritdoc />
         public void DrawText(string oldText,
             string newText,
@@ -54,7 +56,9 @@ namespace TextBlockFX.Win2D.UWP.Effects
                 return;
 
             var ds = args.DrawingSession;
-
+            textLayout = newTextLayout;
+            _textFormat = textFormat;
+            textBrush = new CanvasSolidColorBrush(ds, textColor);
             if (state == RedrawState.Idle)
             {
                 DrawIdle(ds,
@@ -288,5 +292,6 @@ namespace TextBlockFX.Win2D.UWP.Effects
                 ds.Transform = Matrix3x2.Identity;
             }
         }
+       
     }
 }

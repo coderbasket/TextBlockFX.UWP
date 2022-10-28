@@ -360,6 +360,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
                 }
             }
         }
+
     }
 }
 

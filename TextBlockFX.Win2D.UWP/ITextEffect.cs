@@ -69,5 +69,7 @@ namespace TextBlockFX.Win2D.UWP
             RedrawState state,
             CanvasDrawingSession drawingSession,
             CanvasAnimatedDrawEventArgs args);
+      
     }
+    
 }

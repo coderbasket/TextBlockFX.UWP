@@ -25,10 +25,18 @@ namespace Sample.UWP
 
         private readonly string[] _inOtherWords = new[]
         {
-            "This is sample words 🌕",
-            "Another sample words 🌟",
-            "Another sample words 🎶song",
-            "Another sample words, I ❤️love you",
+            "Fly me to the 🌕moon",
+            "And let me play among the 🌟stars",
+            "Let me see what spring is like on",
+            "Jupiter and Mars",
+            "In other words, hold my hand",
+            "In other words, darling, kiss me",
+            "Fill my heart with 🎶song",
+            "And let me sing forevermore",
+            "You are all I long for",
+            "All I worship and adore",
+            "In other words, please be true",
+            "In other words, I ❤️love you",
         };
 
         private readonly string[] _textsOfMencius = new[]
@@ -178,7 +186,7 @@ namespace Sample.UWP
             }
             AutoPlayButton.IsChecked = true;
             Start();
-            StartIndexer();
+            //StartIndexer();
         }
         async void StartIndexer()
         {

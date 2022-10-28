@@ -295,5 +295,6 @@ namespace TextBlockFX.Win2D.UWP.Effects
                 ds.Transform = Matrix3x2.Identity;
             }
         }
+
     }
 }
