@@ -22,7 +22,6 @@ using Color = Windows.UI.Color;
 using Microsoft.Graphics.Canvas.Effects;
 using Microsoft.Graphics.Canvas.UI;
 using Size = Windows.Foundation.Size;
-using static TextBlockFX.Win2D.UWP.Effects.OutlineText;
 using Microsoft.Graphics.Canvas.Geometry;
 
 #if WINDOWS
@@ -31,7 +30,7 @@ namespace TextBlockFX.Win2D.WinUI.Effects
 namespace TextBlockFX.Win2D.UWP.Effects
 #endif
 {
-    public class AdvanceEffect : ITextEffectAnimated
+    public class AdvanceEffectAnimated : ITextEffectAnimated
     {
         public object Sender { get; set; }
         /// <inheritdoc />
@@ -88,7 +87,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
             Canvas_Draw(ds, args);
         }
         //Engine
-        public AdvanceEffect()
+        public AdvanceEffectAnimated()
         {
 
         }
@@ -153,7 +152,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
         bool applyGlowEffect = false;
         Color _glowColor = Colors.Yellow;
         float _amount = 40;
-        public AdvanceEffect ApplyGlowEffect(Windows.UI.Color glowColor, float amount = 40)
+        public AdvanceEffectAnimated ApplyGlowEffect(Windows.UI.Color glowColor, float amount = 40)
         {
             _glowColor = glowColor;
             _amount = amount;
@@ -192,7 +191,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
         };
         Color _outlineColor = Colors.Navy;
         bool isOutline = false;
-        public AdvanceEffect ApplyOutlineEffect(Windows.UI.Color outlineColor, CanvasStrokeStyle style = null)
+        public AdvanceEffectAnimated ApplyOutlineEffect(Windows.UI.Color outlineColor, CanvasStrokeStyle style = null)
         {
             if (style != null)
             {
@@ -227,7 +226,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
         #region Glyph
         Color _glyphColor = Colors.ForestGreen;
         Color semitrans = Colors.White;
-        public AdvanceEffect ApplyGlyphEffect(Color glyphColor, Color semiTransColor)
+        public AdvanceEffectAnimated ApplyGlyphEffect(Color glyphColor, Color semiTransColor)
         {
             _glyphColor = glyphColor;
             semitrans = semiTransColor;

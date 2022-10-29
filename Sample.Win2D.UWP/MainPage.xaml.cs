@@ -12,7 +12,6 @@ using Windows.UI;
 using Windows.UI.Text;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Pivot = TextBlockFX.Win2D.UWP.Effects.Pivot;
 
 namespace Sample.UWP
 {

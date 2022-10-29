@@ -17,7 +17,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
     /// <summary>
     /// Built-in pivot effect of TextBlockFX
     /// </summary>
-    public class Pivot : ITextEffectAnimated
+    public class PivotAnimated : ITextEffectAnimated
     {
         public object Sender { get; set; }
         /// <inheritdoc />

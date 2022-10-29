@@ -23,7 +23,7 @@ namespace TextBlockFX.Win2D.WinUI.Effects
 namespace TextBlockFX.Win2D.UWP.Effects
 #endif
 {
-    public class OutlineText : ITextEffectAnimated
+    public class OutlineTextAnimated : ITextEffectAnimated
     {
         public object Sender { get; set; }
         public TimeSpan AnimationDuration { get; set; } = TimeSpan.FromMilliseconds(800);
@@ -115,7 +115,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
 
         public List<TextOutlineGranularity> TextOutlineGranularityOptions { get { return Utils.GetEnumAsList<TextOutlineGranularity>(); } }
         public TextOutlineGranularity CurrentTextOutlineGranularityOption { get; set; }
-        public OutlineText()
+        public OutlineTextAnimated()
         {
             CurrentTextEffectOption = TextEffectOption.None;
             CurrentTextDirection = CanvasTextDirection.LeftToRightThenTopToBottom;

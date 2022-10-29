@@ -16,7 +16,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
     /// <summary>
     /// Built-in elastic effect of TextBlockFX
     /// </summary>
-    public class Elastic : ITextEffectAnimated
+    public class ElasticAnimated : ITextEffectAnimated
     {
         public object Sender { get; set; }
         /// <inheritdoc />

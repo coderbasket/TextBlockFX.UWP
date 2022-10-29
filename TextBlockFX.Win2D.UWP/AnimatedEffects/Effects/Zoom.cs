@@ -16,7 +16,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
     /// <summary>
     /// Built-in zoom effect of TextBlockFX
     /// </summary>
-    public class Zoom : ITextEffectAnimated
+    public class ZoomAnimated : ITextEffectAnimated
     {
         public object Sender { get; set; }
         /// <inheritdoc />

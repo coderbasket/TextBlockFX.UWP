@@ -19,7 +19,7 @@ namespace TextBlockFX.Win2D.WinUI.Effects
 namespace TextBlockFX.Win2D.UWP.Effects
 #endif
 {
-    public class GlowText : ITextEffectAnimated
+    public class GlowTextAnimated : ITextEffectAnimated
     {
         public object Sender { get; set; }
         /// <inheritdoc />
@@ -76,11 +76,11 @@ namespace TextBlockFX.Win2D.UWP.Effects
             DoEffect(drawingSession, newTextLayout.RequestedSize, GlowAmount, newText);
 
         }
-        public GlowText()
+        public GlowTextAnimated()
         {
 
         }
-        public GlowText(Color glowColor)
+        public GlowTextAnimated(Color glowColor)
         {
             GlowColor = glowColor;
         }

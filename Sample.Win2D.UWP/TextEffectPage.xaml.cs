@@ -38,7 +38,7 @@ namespace Sample.Win2D.UWP
 
         public List<BuiltInEffect> BuiltInEffects => new List<BuiltInEffect>()
         {
-            new BuiltInEffect("Advanced", new AdvanceEffectFX()),            
+            new BuiltInEffect("Advanced", new AdvanceEffect().ApplyGlowEffect(Colors.Red).ApplyOutlineEffect(Colors.AliceBlue).ApplyGlyphEffect(Colors.Green, Colors.Orange)),
 
         };
 

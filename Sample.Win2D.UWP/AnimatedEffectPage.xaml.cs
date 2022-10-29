@@ -39,17 +39,17 @@ namespace Sample.Win2D.UWP
 
         public List<BuiltInEffect> BuiltInEffects => new List<BuiltInEffect>()
         {
-            new BuiltInEffect("Advanced", new AdvanceEffect().ApplyGlowEffect(Colors.Red).ApplyOutlineEffect(Colors.AliceBlue).ApplyGlyphEffect(Colors.Green, Colors.Orange)),
-            new BuiltInEffect("Default", new Default()),
-            new BuiltInEffect("Motion Blur", new MotionBlur()),
-            new BuiltInEffect("Blur", new Blur()),
-            new BuiltInEffect("Elastic", new Elastic()),
-            new BuiltInEffect("Zoom", new Zoom()),
-            new BuiltInEffect("Pivot", new TextBlockFX.Win2D.UWP.Effects.Pivot()),
-            new BuiltInEffect("Glow", new GlowText()),
-            new BuiltInEffect("Fire", new FireText()),
-             new BuiltInEffect("Outline", new OutlineText()),
-             new BuiltInEffect("Glyph", new GlyphText()),
+            new BuiltInEffect("Advanced", new AdvanceEffectAnimated().ApplyGlowEffect(Colors.Red).ApplyOutlineEffect(Colors.AliceBlue).ApplyGlyphEffect(Colors.Green, Colors.Orange)),
+            new BuiltInEffect("Default", new DefaultAnimated()),
+            new BuiltInEffect("Motion Blur", new MotionBlurAnimated()),
+            new BuiltInEffect("Blur", new BlurAnimated()),
+            new BuiltInEffect("Elastic", new ElasticAnimated()),
+            new BuiltInEffect("Zoom", new ZoomAnimated()),
+            new BuiltInEffect("Pivot", new TextBlockFX.Win2D.UWP.Effects.PivotAnimated()),
+            new BuiltInEffect("Glow", new GlowTextAnimated()),
+            new BuiltInEffect("Fire", new FireAnimated()),
+             new BuiltInEffect("Outline", new OutlineTextAnimated()),
+             new BuiltInEffect("Glyph", new GlyphTextAnimated()),
              new BuiltInEffect("SuperSubScript", new SuperSubscipt())
         };
 

@@ -17,7 +17,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
     /// <summary>
     /// Built-in blur effect of TextBlockFX
     /// </summary>
-    public class Blur : ITextEffectAnimated
+    public class BlurAnimated : ITextEffectAnimated
     {
         public object Sender { get; set; }
         /// <inheritdoc />

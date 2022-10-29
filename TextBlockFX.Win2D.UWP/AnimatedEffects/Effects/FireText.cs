@@ -22,7 +22,7 @@ namespace TextBlockFX.Win2D.WinUI.Effects
 namespace TextBlockFX.Win2D.UWP.Effects
 #endif
 {
-    public class FireText : ITextEffectAnimated
+    public class FireAnimated : ITextEffectAnimated
     {
         public object Sender { get; set; }
         public TimeSpan AnimationDuration { get; set; } = TimeSpan.FromMilliseconds(800);

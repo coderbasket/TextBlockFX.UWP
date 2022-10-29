@@ -20,7 +20,7 @@ namespace TextBlockFX.Win2D.WinUI.Effects
 namespace TextBlockFX.Win2D.UWP.Effects
 #endif
 {
-    public class GlyphText : ITextEffectAnimated
+    public class GlyphTextAnimated : ITextEffectAnimated
     {
         public object Sender { get; set; }
         /// <inheritdoc />
@@ -82,7 +82,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
             }
             Canvas_Draw(ds, args);
         }
-        public GlyphText()
+        public GlyphTextAnimated()
         {
             CurrentTextEffectOption = TextEffectOption.UnderlineEveryOtherWord;
             CurrentTextDirection = CanvasTextDirection.LeftToRightThenTopToBottom;

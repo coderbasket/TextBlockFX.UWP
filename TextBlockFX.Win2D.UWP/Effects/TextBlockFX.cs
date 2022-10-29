@@ -85,10 +85,13 @@ namespace TextBlockFX.Win2D.UWP
             get { return (ITextEffect)GetValue(TextEffectProperty); }
             set
             {
-                _textEffect = value;
-                _textEffect.Sender = this;
-                SetValue(TextEffectProperty, value);
-                UpdateDrawing();              
+                if (value != null)
+                {
+                    _textEffect = value;
+                    _textEffect.Sender = this;
+                    SetValue(TextEffectProperty, value);
+                    UpdateDrawing();
+                }          
             }
         }
 
@@ -242,7 +245,10 @@ namespace TextBlockFX.Win2D.UWP
                 _animatedCanvas.Draw += AnimatedCanvas_Draw;
             }
         }
+        public void ClearResources()
+        {
 
+        }
         private void TextBlockFX_Loaded(object sender, RoutedEventArgs e)
         {
             _newText = Text ?? string.Empty;
@@ -310,7 +316,6 @@ namespace TextBlockFX.Win2D.UWP
         private void AnimatedCanvas_Draw(CanvasControl sender, CanvasDrawEventArgs args)
         {
             args.DrawingSession.Clear(Colors.Transparent);
-
             if (_textEffect == null)
             {
                 CanvasTextLayout ctl = new CanvasTextLayout(sender, _newText,_textFormat, (float)sender.Size.Width, (float)sender.Size.Height);
@@ -388,12 +393,18 @@ namespace TextBlockFX.Win2D.UWP
         }
         private void GenerateNewTextLayout(CanvasControl resourceCreator)
         {
-            _newTextLayout = new CanvasTextLayout(resourceCreator, _newText, _textFormat,
+            _newTextLayout = null;
+
+
+            if (_newTextLayout == null)
+            {
+                _newTextLayout = new CanvasTextLayout(resourceCreator, _newText, _textFormat,
                 (float)(resourceCreator.Size.Width),
                 (float)(resourceCreator.Size.Height));
-            _newTextLayout.Options = CanvasDrawTextOptions.EnableColorFont | CanvasDrawTextOptions.NoPixelSnap;
-            _newTextLayout.VerticalAlignment = CanvasVerticalAlignment.Center;
-            UpdateDrawing();
+                _newTextLayout.Options = CanvasDrawTextOptions.EnableColorFont | CanvasDrawTextOptions.NoPixelSnap;
+                _newTextLayout.VerticalAlignment = CanvasVerticalAlignment.Center;
+                UpdateDrawing();
+            }
         }
 
 

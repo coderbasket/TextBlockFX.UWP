@@ -16,7 +16,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
     /// <summary>
     /// Default built-in animation effect of TextBlockFX
     /// </summary>
-    public class Default : ITextEffectAnimated
+    public class DefaultAnimated : ITextEffectAnimated
     {
         public object Sender { get; set; }
         /// <inheritdoc />
