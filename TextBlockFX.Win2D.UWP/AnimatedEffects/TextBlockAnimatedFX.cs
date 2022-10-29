@@ -33,7 +33,7 @@ namespace TextBlockFX.Win2D.UWP
     /// </summary>
     [TemplatePart(Name = "ContentBorder", Type = typeof(Border))]
     [TemplatePart(Name = "AnimatedCanvas", Type = typeof(CanvasAnimatedControl))]
-    public sealed class TextBlockFX : Control
+    public sealed class TextBlockAnimatedFX : Control
     {
         private CanvasAnimatedControl _animatedCanvas = null;
 
@@ -52,7 +52,7 @@ namespace TextBlockFX.Win2D.UWP
         private CanvasTextLayout _oldTextLayout;
         private CanvasTextLayout _newTextLayout;
 
-        private ITextEffect _textEffect;
+        private ITextEffectAnimated _textEffect;
 
         private float _fontSize = 14;
         private string _fontFamily = FontFamily.XamlAutoFontFamily.Source;
@@ -71,7 +71,7 @@ namespace TextBlockFX.Win2D.UWP
         /// Identifies the Text dependency property.
         /// </summary>
         public static readonly DependencyProperty TextProperty = DependencyProperty.Register(
-            "Text", typeof(string), typeof(TextBlockFX), new PropertyMetadata(default(string)));
+            "Text", typeof(string), typeof(TextBlockAnimatedFX), new PropertyMetadata(default(string)));
 
         /// <summary>
         /// Gets or sets the text contents of a TextBlockFX.
@@ -94,14 +94,14 @@ namespace TextBlockFX.Win2D.UWP
         /// Identifies the TextEffect dependency property.
         /// </summary>
         public static readonly DependencyProperty TextEffectProperty = DependencyProperty.Register(
-            "TextEffect", typeof(ITextEffect), typeof(TextBlockFX), new PropertyMetadata(default(ITextEffect)));
+            "TextEffect", typeof(ITextEffectAnimated), typeof(TextBlockAnimatedFX), new PropertyMetadata(default(ITextEffectAnimated)));
 
         /// <summary>
         /// Gets or sets the effect for animating text.
         /// </summary>
-        public ITextEffect TextEffect
+        public ITextEffectAnimated TextEffect
         {
-            get { return (ITextEffect)GetValue(TextEffectProperty); }
+            get { return (ITextEffectAnimated)GetValue(TextEffectProperty); }
             set
             {
                 _textEffect = value;
@@ -114,7 +114,7 @@ namespace TextBlockFX.Win2D.UWP
         /// Identifies the TextAlignment dependency property.
         /// </summary>
         public static readonly DependencyProperty TextAlignmentProperty = DependencyProperty.Register(
-            "TextAlignment", typeof(TextAlignment), typeof(TextBlockFX), new PropertyMetadata(default(TextAlignment)));
+            "TextAlignment", typeof(TextAlignment), typeof(TextBlockAnimatedFX), new PropertyMetadata(default(TextAlignment)));
 
         /// <summary>
         /// Gets or sets a value that indicates the horizontal alignment of text content.
@@ -133,7 +133,7 @@ namespace TextBlockFX.Win2D.UWP
         /// Identifies the TextDirection dependency property.
         /// </summary>
         public static readonly DependencyProperty TextDirectionProperty = DependencyProperty.Register(
-            "TextDirection", typeof(TextDirection), typeof(TextBlockFX), new PropertyMetadata(default(TextDirection)));
+            "TextDirection", typeof(TextDirection), typeof(TextBlockAnimatedFX), new PropertyMetadata(default(TextDirection)));
 
         /// <summary>
         /// Gets or sets a value that indicates direction in which the text is read.
@@ -152,7 +152,7 @@ namespace TextBlockFX.Win2D.UWP
         /// Identifies the TextTrimming dependency property.
         /// </summary>
         public static readonly DependencyProperty TextTrimmingProperty = DependencyProperty.Register(
-            "TextTrimming", typeof(TextTrimming), typeof(TextBlockFX), new PropertyMetadata(default(TextTrimming)));
+            "TextTrimming", typeof(TextTrimming), typeof(TextBlockAnimatedFX), new PropertyMetadata(default(TextTrimming)));
 
         /// <summary>
         /// Gets or sets the text trimming behavior to employ when content overflows the content area.
@@ -171,7 +171,7 @@ namespace TextBlockFX.Win2D.UWP
         /// Identifies the TextWrapping  dependency property.
         /// </summary>
         public static readonly DependencyProperty TextWrappingProperty = DependencyProperty.Register(
-            "TextWrapping", typeof(TextWrapping), typeof(TextBlockFX), new PropertyMetadata(default(TextWrapping)));
+            "TextWrapping", typeof(TextWrapping), typeof(TextBlockAnimatedFX), new PropertyMetadata(default(TextWrapping)));
 
         /// <summary>
         /// Gets or sets how the TextBlockFX wraps text.
@@ -219,17 +219,17 @@ namespace TextBlockFX.Win2D.UWP
         /// <summary>
         /// Initializes a new instance of the TextBlockFX class.
         /// </summary>
-        public TextBlockFX()
+        public TextBlockAnimatedFX()
         {
-            this.DefaultStyleKey = typeof(TextBlockFX);
+            this.DefaultStyleKey = typeof(TextBlockAnimatedFX);
 
             this.Loaded += TextBlockFX_Loaded;
-            this.RegisterPropertyChangedCallback(TextBlockFX.ForegroundProperty, ForegroundChangedCallback);
-            this.RegisterPropertyChangedCallback(TextBlockFX.FontFamilyProperty, FontFamilyChangedCallback);
-            this.RegisterPropertyChangedCallback(TextBlockFX.FontSizeProperty, FontSizeChangedCallback);
-            this.RegisterPropertyChangedCallback(TextBlockFX.FontStretchProperty, FontStretchChangedCallback);
-            this.RegisterPropertyChangedCallback(TextBlockFX.FontStyleProperty, FontStyleChangedCallback);
-            this.RegisterPropertyChangedCallback(TextBlockFX.FontWeightProperty, FontWeightChangedCallback);
+            this.RegisterPropertyChangedCallback(TextBlockAnimatedFX.ForegroundProperty, ForegroundChangedCallback);
+            this.RegisterPropertyChangedCallback(TextBlockAnimatedFX.FontFamilyProperty, FontFamilyChangedCallback);
+            this.RegisterPropertyChangedCallback(TextBlockAnimatedFX.FontSizeProperty, FontSizeChangedCallback);
+            this.RegisterPropertyChangedCallback(TextBlockAnimatedFX.FontStretchProperty, FontStretchChangedCallback);
+            this.RegisterPropertyChangedCallback(TextBlockAnimatedFX.FontStyleProperty, FontStyleChangedCallback);
+            this.RegisterPropertyChangedCallback(TextBlockAnimatedFX.FontWeightProperty, FontWeightChangedCallback);
 
             _textFormat.TrimmingSign = CanvasTrimmingSign.Ellipsis;
         }

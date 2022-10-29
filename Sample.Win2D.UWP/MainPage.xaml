@@ -135,7 +135,7 @@
             </ScrollViewer>
         </Border>
 
-        <TBFX:TextBlockFX
+        <TBFX:TextBlockAnimatedFX
             x:Name="TBFX"
             Grid.Column="1"
             Margin="10"
@@ -147,6 +147,6 @@
             RedrawStateChanged="TBFX_OnRedrawStateChanged"
             TextAlignment="Center"
             TextTrimming="CharacterEllipsis"
-            TextWrapping="Wrap" />
+            TextWrapping="WrapWholeWords" />
     </Grid>
 </Page>

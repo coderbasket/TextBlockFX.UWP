@@ -22,7 +22,7 @@ namespace TextBlockFX.Win2D.WinUI.Effects
 namespace TextBlockFX.Win2D.UWP.Effects
 #endif
 {
-    public class SuperSubscipt : ITextEffect
+    public class SuperSubscipt : ITextEffectAnimated
     {
         public object Sender { get; set; }
         /// <inheritdoc />

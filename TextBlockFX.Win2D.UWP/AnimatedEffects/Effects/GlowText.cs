@@ -19,7 +19,7 @@ namespace TextBlockFX.Win2D.WinUI.Effects
 namespace TextBlockFX.Win2D.UWP.Effects
 #endif
 {
-    public class GlowText : ITextEffect
+    public class GlowText : ITextEffectAnimated
     {
         public object Sender { get; set; }
         /// <inheritdoc />
@@ -76,7 +76,14 @@ namespace TextBlockFX.Win2D.UWP.Effects
             DoEffect(drawingSession, newTextLayout.RequestedSize, GlowAmount, newText);
 
         }
-        
+        public GlowText()
+        {
+
+        }
+        public GlowText(Color glowColor)
+        {
+            GlowColor = glowColor;
+        }
         public HorizontalAlignment HorizontalContentAlignment { get; set; } = HorizontalAlignment.Stretch;
         public VerticalAlignment VerticalContentAlignment { get; set; } = VerticalAlignment.Center;
         public double ExpandAmount { get; set; } = 40;

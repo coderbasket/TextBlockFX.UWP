@@ -20,7 +20,7 @@ namespace TextBlockFX.Win2D.WinUI.Effects
 namespace TextBlockFX.Win2D.UWP.Effects
 #endif
 {
-    public class GlyphText : ITextEffect
+    public class GlyphText : ITextEffectAnimated
     {
         public object Sender { get; set; }
         /// <inheritdoc />

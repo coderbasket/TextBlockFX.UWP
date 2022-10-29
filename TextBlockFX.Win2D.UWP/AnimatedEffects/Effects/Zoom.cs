@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Numerics;
 using Microsoft.Graphics.Canvas;
 using Microsoft.Graphics.Canvas.Brushes;
-using Microsoft.Graphics.Canvas.Effects;
 using Microsoft.Graphics.Canvas.Text;
 using Microsoft.Graphics.Canvas.UI.Xaml;
 using Windows.UI;
@@ -15,17 +14,18 @@ namespace TextBlockFX.Win2D.UWP.Effects
 #endif
 {
     /// <summary>
-    /// Built-in blur effect of TextBlockFX
+    /// Built-in zoom effect of TextBlockFX
     /// </summary>
-    public class Blur : ITextEffect
+    public class Zoom : ITextEffectAnimated
     {
         public object Sender { get; set; }
         /// <inheritdoc />
         public TimeSpan AnimationDuration { get; set; } = TimeSpan.FromMilliseconds(800);
 
         /// <inheritdoc />
-        public TimeSpan DelayPerCluster { get; set; } = TimeSpan.FromMilliseconds(20);
+        public TimeSpan DelayPerCluster { get; set; } = TimeSpan.FromMilliseconds(10);
 
+        /// <inheritdoc />
         public void Update(string oldText,
             string newText,
             List<TextDiffResult> diffResults,
@@ -39,7 +39,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
         }
         TextEffectParam EffectParam;
         /// <inheritdoc />
-        public void DrawText( string oldText,
+        public void DrawText(string oldText,
             string newText,
             List<TextDiffResult> diffResults,
             CanvasTextLayout oldTextLayout,
@@ -54,16 +54,16 @@ namespace TextBlockFX.Win2D.UWP.Effects
             if (diffResults == null)
                 return;
             EffectParam = new TextEffectParam(oldText,
-                newText,
-                diffResults,
-                oldTextLayout,
-                newTextLayout,
-                textFormat,
-                textColor,
-                gradientBrush,
-                state,
-                drawingSession,
-                args);
+               newText,
+               diffResults,
+               oldTextLayout,
+               newTextLayout,
+               textFormat,
+               textColor,
+               gradientBrush,
+               state,
+               drawingSession,
+               args);
             var ds = args.DrawingSession;
 
             if (state == RedrawState.Idle)
@@ -78,8 +78,10 @@ namespace TextBlockFX.Win2D.UWP.Effects
                 return;
             }
 
-            foreach (var diffResult in diffResults)
+            for (int i = 0; i < diffResults.Count; i++)
             {
+                var diffResult = diffResults[i];
+
                 switch (diffResult.Type)
                 {
                     case DiffOperationType.Insert:
@@ -152,12 +154,17 @@ namespace TextBlockFX.Win2D.UWP.Effects
                 return;
             }
 
-            CanvasCommandList cl = new CanvasCommandList(ds);
-            float newProgress = 1.0f - Easing.UpdateProgress(newCluster.Progress, Easing.EasingFunction.CubicOut);
-
-            using (CanvasDrawingSession clds = cl.CreateDrawingSession())
+            float opacityProgress = Easing.UpdateProgress(newCluster.Progress, Easing.EasingFunction.ElasticOut);
+            float zoomProgress = Easing.UpdateProgress(newCluster.Progress, Easing.EasingFunction.ElasticOut);
+            using (ds.CreateLayer(opacityProgress))
             {
-                clds.DrawText(
+                ds.Transform = Matrix3x2.CreateScale(zoomProgress,
+                new Vector2((float)(newCluster.LayoutBounds.X +
+                                    newCluster.LayoutBounds.Width * 0.5),
+                                    (float)(newCluster.LayoutBounds.Y +
+                                    newCluster.LayoutBounds.Height * 0.5)));
+
+                ds.DrawText(
                     newCluster.IsTrimmed
                         ? newTextLayout.GenerateTrimmingSign()
                         : newCluster.Characters,
@@ -166,19 +173,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
                     textColor,
                     textFormat);
 
-                clds.Transform = Matrix3x2.Identity;
-            }
-
-            using (ds.CreateLayer(1.0f - newProgress))
-            {
-                using (var blurEffect = new GaussianBlurEffect())
-                {
-                    blurEffect.Source = cl;
-                    blurEffect.BlurAmount = (float)(newProgress * newCluster.DrawBounds.Height * 0.5f);
-                    blurEffect.Optimization = EffectOptimization.Speed;
-
-                    ds.DrawImage(blurEffect);
-                }
+                ds.Transform = Matrix3x2.Identity;
             }
         }
 
@@ -196,7 +191,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
                 return;
             }
 
-            float oldProgress = Easing.UpdateProgress(oldCluster.Progress, Easing.EasingFunction.CubicOut);
+            float oldProgress = Easing.UpdateProgress(oldCluster.Progress, Easing.EasingFunction.ElasticOut);
 
             var oX = oldCluster.DrawBounds.X;
             var oY = oldCluster.DrawBounds.Y;
@@ -230,14 +225,20 @@ namespace TextBlockFX.Win2D.UWP.Effects
                 return;
             }
 
-            float oldProgress = Easing.UpdateProgress(oldCluster.Progress, Easing.EasingFunction.CubicOut);
-            float newProgress = 1.0f - Easing.UpdateProgress(newCluster.Progress, Easing.EasingFunction.CubicOut);
+            float oldOpacityProgress = Easing.UpdateProgress(1.0f - oldCluster.Progress, Easing.EasingFunction.ElasticIn);
+            float oldZoomProgress = Easing.UpdateProgress(1.0f - oldCluster.Progress, Easing.EasingFunction.ElasticIn);
+            float newOpacityProgress = Easing.UpdateProgress(newCluster.Progress, Easing.EasingFunction.ElasticOut);
+            float newZoomProgress = Easing.UpdateProgress(newCluster.Progress, Easing.EasingFunction.ElasticOut);
 
-            CanvasCommandList oCl = new CanvasCommandList(ds);
-
-            using (CanvasDrawingSession clds = oCl.CreateDrawingSession())
+            using (ds.CreateLayer(oldOpacityProgress))
             {
-                clds.DrawText(
+                ds.Transform = Matrix3x2.CreateScale(oldZoomProgress,
+                    new Vector2((float)(oldCluster.LayoutBounds.X +
+                                        oldCluster.LayoutBounds.Width * 0.5),
+                        (float)(oldCluster.LayoutBounds.Y +
+                                oldCluster.LayoutBounds.Height * 0.5)));
+
+                ds.DrawText(
                     oldCluster.IsTrimmed
                         ? oldTextLayout.GenerateTrimmingSign()
                         : oldCluster.Characters,
@@ -246,29 +247,18 @@ namespace TextBlockFX.Win2D.UWP.Effects
                     textColor,
                     textFormat);
 
-                clds.Transform = Matrix3x2.Identity;
+                ds.Transform = Matrix3x2.Identity;
             }
 
-            using (ds.CreateLayer(1.0f - oldProgress))
+            using (ds.CreateLayer(newOpacityProgress))
             {
-                using (var blurEffect = new GaussianBlurEffect())
-                {
-                    blurEffect.Source = oCl;
-                    blurEffect.BlurAmount = (float)(oldProgress * oldCluster.DrawBounds.Height * 0.5f);
-                    blurEffect.Optimization = EffectOptimization.Speed;
+                ds.Transform = Matrix3x2.CreateScale(newZoomProgress,
+                    new Vector2((float)(newCluster.LayoutBounds.X +
+                                        newCluster.LayoutBounds.Width * 0.5),
+                        (float)(newCluster.LayoutBounds.Y +
+                                newCluster.LayoutBounds.Height * 0.5)));
 
-                    ds.DrawImage(blurEffect);
-                }
-            }
-
-            CanvasCommandList nCl = new CanvasCommandList(ds);
-
-            using (CanvasDrawingSession clds = nCl.CreateDrawingSession())
-            {
-                clds.Transform = Matrix3x2.CreateTranslation(0,
-                    (float)(newCluster.LayoutBounds.Height * newProgress));
-
-                clds.DrawText(
+                ds.DrawText(
                     newCluster.IsTrimmed
                         ? newTextLayout.GenerateTrimmingSign()
                         : newCluster.Characters,
@@ -277,19 +267,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
                     textColor,
                     textFormat);
 
-                clds.Transform = Matrix3x2.Identity;
-            }
-
-            using (ds.CreateLayer(1.0f - newProgress))
-            {
-                using (var blurEffect = new GaussianBlurEffect())
-                {
-                    blurEffect.Source = nCl;
-                    blurEffect.BlurAmount = (float)(newProgress * newCluster.DrawBounds.Height * 0.5f);
-                    blurEffect.Optimization = EffectOptimization.Speed;
-
-                    ds.DrawImage(blurEffect);
-                }
+                ds.Transform = Matrix3x2.Identity;
             }
         }
 
@@ -307,12 +285,16 @@ namespace TextBlockFX.Win2D.UWP.Effects
                 return;
             }
 
-            CanvasCommandList cl = new CanvasCommandList(ds);
-            float oldProgress = Easing.UpdateProgress(oldCluster.Progress, Easing.EasingFunction.CubicOut);
-
-            using (CanvasDrawingSession clds = cl.CreateDrawingSession())
+            float opacityProgress = Easing.UpdateProgress(1.0f - oldCluster.Progress, Easing.EasingFunction.ElasticIn);
+            float zoomProgress = Easing.UpdateProgress(1.0f - oldCluster.Progress, Easing.EasingFunction.ElasticIn);
+            using (ds.CreateLayer(opacityProgress))
             {
-                clds.DrawText(
+                ds.Transform = Matrix3x2.CreateScale(zoomProgress,
+                    new Vector2((float)(oldCluster.LayoutBounds.X +
+                                        oldCluster.LayoutBounds.Width * 0.5),
+                        (float)(oldCluster.LayoutBounds.Y +
+                                oldCluster.LayoutBounds.Height * 0.5)));
+                ds.DrawText(
                     oldCluster.IsTrimmed
                         ? oldTextLayout.GenerateTrimmingSign()
                         : oldCluster.Characters,
@@ -321,28 +303,9 @@ namespace TextBlockFX.Win2D.UWP.Effects
                     textColor,
                     textFormat);
 
-                clds.Transform = Matrix3x2.Identity;
-            }
-
-            using (ds.CreateLayer(1.0f - oldProgress))
-            {
-                using (var blurEffect = new GaussianBlurEffect())
-                {
-                    blurEffect.Source = cl;
-                    blurEffect.BlurAmount = (float)(oldProgress * oldCluster.DrawBounds.Height * 0.5f);
-                    blurEffect.Optimization = EffectOptimization.Speed;
-
-                    ds.DrawImage(blurEffect);
-                }
+                ds.Transform = Matrix3x2.Identity;
             }
         }
 
-        private static float DegreesToRadians(float degrees)
-        {
-            float radians = ((MathF.PI / 180) * degrees);
-            return (radians);
-        }
-
-        
     }
 }

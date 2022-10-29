@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Numerics;
 using Microsoft.Graphics.Canvas;
 using Microsoft.Graphics.Canvas.Brushes;
-using Microsoft.Graphics.Canvas.Effects;
 using Microsoft.Graphics.Canvas.Text;
 using Microsoft.Graphics.Canvas.UI.Xaml;
 using Windows.UI;
@@ -15,18 +14,19 @@ namespace TextBlockFX.Win2D.UWP.Effects
 #endif
 {
     /// <summary>
-    /// Built-in pivot effect of TextBlockFX
+    /// Default built-in animation effect of TextBlockFX
     /// </summary>
-    public class Pivot : ITextEffect
+    public class Default : ITextEffectAnimated
     {
         public object Sender { get; set; }
         /// <inheritdoc />
         public TimeSpan AnimationDuration { get; set; } = TimeSpan.FromMilliseconds(800);
 
         /// <inheritdoc />
-        public TimeSpan DelayPerCluster { get; set; } = TimeSpan.FromMilliseconds(30);
+        public TimeSpan DelayPerCluster { get; set; } = TimeSpan.FromMilliseconds(10);
 
-        public void Update(string oldText,
+        /// <inheritdoc />
+        public void Update( string oldText,
             string newText,
             List<TextDiffResult> diffResults,
             CanvasTextLayout oldTextLayout,
@@ -37,6 +37,8 @@ namespace TextBlockFX.Win2D.UWP.Effects
         {
 
         }
+        
+
         TextEffectParam EffectParam;
         /// <inheritdoc />
         public void DrawText( string oldText,
@@ -53,7 +55,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
         {
             if (diffResults == null)
                 return;
-            EffectParam = new TextEffectParam(oldText,
+            EffectParam = new TextEffectParam( oldText,
                newText,
                diffResults,
                oldTextLayout,
@@ -65,7 +67,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
                drawingSession,
                args);
             var ds = args.DrawingSession;
-
+           
             if (state == RedrawState.Idle)
             {
                 DrawIdle(ds,
@@ -78,8 +80,10 @@ namespace TextBlockFX.Win2D.UWP.Effects
                 return;
             }
 
-            foreach (var diffResult in diffResults)
+            for (int i = 0; i < diffResults.Count; i++)
             {
+                var diffResult = diffResults[i];
+
                 switch (diffResult.Type)
                 {
                     case DiffOperationType.Insert:
@@ -152,12 +156,15 @@ namespace TextBlockFX.Win2D.UWP.Effects
                 return;
             }
 
-            CanvasCommandList cl = new CanvasCommandList(ds);
-            float newProgress = 1.0f - Easing.UpdateProgress(newCluster.Progress, Easing.EasingFunction.CubicOut);
-
-            using (CanvasDrawingSession clds = cl.CreateDrawingSession())
+            float newProgress = Easing.UpdateProgress(newCluster.Progress, Easing.EasingFunction.CubicOut);
+            using (ds.CreateLayer(newProgress))
             {
-                clds.DrawText(
+                ds.Transform = Matrix3x2.CreateScale(newProgress,
+                    new Vector2((float)(newCluster.LayoutBounds.X +
+                                        newCluster.LayoutBounds.Width * 0.5),
+                        (float)newCluster.LayoutBounds.Bottom));
+
+                ds.DrawText(
                     newCluster.IsTrimmed
                         ? newTextLayout.GenerateTrimmingSign()
                         : newCluster.Characters,
@@ -166,21 +173,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
                     textColor,
                     textFormat);
 
-                clds.Transform = Matrix3x2.Identity;
-            }
-
-            using (ds.CreateLayer(1.0f - newProgress))
-            {
-                using (var transformEffect = new Transform3DEffect())
-                {
-                    transformEffect.Source = cl;
-                    transformEffect.TransformMatrix = Matrix4x4.CreateRotationY(newProgress,
-                        new Vector3((float)(newCluster.LayoutBounds.X + newCluster.LayoutBounds.Width * 0.5),
-                            (float)(newCluster.LayoutBounds.Y + newCluster.LayoutBounds.Height * 0.5),
-                            0));
-
-                    ds.DrawImage(transformEffect);
-                }
+                ds.Transform = Matrix3x2.Identity;
             }
         }
 
@@ -199,7 +192,6 @@ namespace TextBlockFX.Win2D.UWP.Effects
             }
 
             float oldProgress = Easing.UpdateProgress(oldCluster.Progress, Easing.EasingFunction.CubicOut);
-            float pivotProgress = 0;
 
             var oX = oldCluster.DrawBounds.X;
             var oY = oldCluster.DrawBounds.Y;
@@ -209,40 +201,14 @@ namespace TextBlockFX.Win2D.UWP.Effects
             var dX = nX - oX;
             var dY = nY - oY;
 
-            if (dX != 0)
-            {
-                pivotProgress = Easing.UpdateProgress(oldCluster.Progress * 2.0f, Easing.EasingFunction.SinusoidalOut);
-                pivotProgress = (float)Math.Clamp(pivotProgress, 0, 0.5);
-            }
-
-            CanvasCommandList cl = new CanvasCommandList(ds);
-            using (CanvasDrawingSession clds = cl.CreateDrawingSession())
-            {
-                clds.DrawText(
-                    newCluster.IsTrimmed
-                        ? newTextLayout.GenerateTrimmingSign()
-                        : newCluster.Characters,
-                    (float)(oX + dX * oldProgress),
-                    (float)(oY + dY * oldProgress),
-                    textColor,
-                    textFormat);
-
-                clds.Transform = Matrix3x2.Identity;
-            }
-
-            using (ds.CreateLayer(1.0f))
-            {
-                using (var transformEffect = new Transform3DEffect())
-                {
-                    transformEffect.Source = cl;
-                    transformEffect.TransformMatrix = Matrix4x4.CreateRotationY(pivotProgress,
-                        new Vector3((float)(newCluster.LayoutBounds.X + newCluster.LayoutBounds.Width * 0.5),
-                            (float)(newCluster.LayoutBounds.Y + newCluster.LayoutBounds.Height * 0.5),
-                            0));
-
-                    ds.DrawImage(transformEffect);
-                }
-            }
+            ds.DrawText(
+                oldCluster.IsTrimmed
+                    ? oldTextLayout.GenerateTrimmingSign()
+                    : oldCluster.Characters,
+                (float)(oX + dX * oldProgress),
+                (float)(oY + dY * oldProgress),
+                textColor,
+                textFormat);
         }
 
         private void DrawUpdate(CanvasDrawingSession ds,
@@ -260,13 +226,16 @@ namespace TextBlockFX.Win2D.UWP.Effects
             }
 
             float oldProgress = Easing.UpdateProgress(oldCluster.Progress, Easing.EasingFunction.CubicOut);
-            float newProgress = 1.0f - Easing.UpdateProgress(newCluster.Progress, Easing.EasingFunction.CubicOut);
+            float newProgress = Easing.UpdateProgress(newCluster.Progress, Easing.EasingFunction.CubicOut);
 
-            CanvasCommandList oCl = new CanvasCommandList(ds);
-
-            using (CanvasDrawingSession clds = oCl.CreateDrawingSession())
+            using (ds.CreateLayer(1.0f - oldProgress))
             {
-                clds.DrawText(
+                ds.Transform = Matrix3x2.CreateScale(1.0f - oldProgress,
+                    new Vector2((float)(oldCluster.LayoutBounds.X +
+                                        oldCluster.LayoutBounds.Width * 0.5),
+                        (float)oldCluster.LayoutBounds.Bottom));
+
+                ds.DrawText(
                     oldCluster.IsTrimmed
                         ? oldTextLayout.GenerateTrimmingSign()
                         : oldCluster.Characters,
@@ -275,31 +244,17 @@ namespace TextBlockFX.Win2D.UWP.Effects
                     textColor,
                     textFormat);
 
-                clds.Transform = Matrix3x2.Identity;
+                ds.Transform = Matrix3x2.Identity;
             }
 
-            using (ds.CreateLayer(1.0f - oldProgress))
+            using (ds.CreateLayer(newProgress))
             {
-                using (var transformEffect = new Transform3DEffect())
-                {
-                    transformEffect.Source = oCl;
-                    transformEffect.TransformMatrix = Matrix4x4.CreateRotationY(oldProgress,
-                        new Vector3((float)(oldCluster.LayoutBounds.X + oldCluster.LayoutBounds.Width * 0.5),
-                            (float)(oldCluster.LayoutBounds.Y + oldCluster.LayoutBounds.Height * 0.5),
-                            0));
+                ds.Transform = Matrix3x2.CreateScale(newProgress,
+                    new Vector2((float)(newCluster.LayoutBounds.X +
+                                        newCluster.LayoutBounds.Width * 0.5),
+                        (float)newCluster.LayoutBounds.Bottom));
 
-                    ds.DrawImage(transformEffect);
-                }
-            }
-
-            CanvasCommandList nCl = new CanvasCommandList(ds);
-
-            using (CanvasDrawingSession clds = nCl.CreateDrawingSession())
-            {
-                clds.Transform = Matrix3x2.CreateTranslation(0,
-                    (float)(newCluster.LayoutBounds.Height * newProgress));
-
-                clds.DrawText(
+                ds.DrawText(
                     newCluster.IsTrimmed
                         ? newTextLayout.GenerateTrimmingSign()
                         : newCluster.Characters,
@@ -308,21 +263,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
                     textColor,
                     textFormat);
 
-                clds.Transform = Matrix3x2.Identity;
-            }
-
-            using (ds.CreateLayer(1.0f - newProgress))
-            {
-                using (var transformEffect = new Transform3DEffect())
-                {
-                    transformEffect.Source = nCl;
-                    transformEffect.TransformMatrix = Matrix4x4.CreateRotationY(newProgress,
-                        new Vector3((float)(newCluster.LayoutBounds.X + newCluster.LayoutBounds.Width * 0.5),
-                            (float)(newCluster.LayoutBounds.Y + newCluster.LayoutBounds.Height * 0.5),
-                            0));
-
-                    ds.DrawImage(transformEffect);
-                }
+                ds.Transform = Matrix3x2.Identity;
             }
         }
 
@@ -340,12 +281,15 @@ namespace TextBlockFX.Win2D.UWP.Effects
                 return;
             }
 
-            CanvasCommandList cl = new CanvasCommandList(ds);
             float oldProgress = Easing.UpdateProgress(oldCluster.Progress, Easing.EasingFunction.CubicOut);
 
-            using (CanvasDrawingSession clds = cl.CreateDrawingSession())
+            using (ds.CreateLayer(1.0f - oldProgress))
             {
-                clds.DrawText(
+                ds.Transform = Matrix3x2.CreateScale(1.0f - oldProgress,
+                    new Vector2((float)(oldCluster.LayoutBounds.X +
+                                        oldCluster.LayoutBounds.Width * 0.5),
+                        (float)oldCluster.LayoutBounds.Bottom));
+                ds.DrawText(
                     oldCluster.IsTrimmed
                         ? oldTextLayout.GenerateTrimmingSign()
                         : oldCluster.Characters,
@@ -354,24 +298,9 @@ namespace TextBlockFX.Win2D.UWP.Effects
                     textColor,
                     textFormat);
 
-                clds.Transform = Matrix3x2.Identity;
-            }
-
-            using (ds.CreateLayer(1.0f - oldProgress))
-            {
-                using (var transformEffect = new Transform3DEffect())
-                {
-                    transformEffect.Source = cl;
-                    transformEffect.TransformMatrix = Matrix4x4.CreateRotationY(oldProgress,
-                        new Vector3((float)(oldCluster.LayoutBounds.X + oldCluster.LayoutBounds.Width * 0.5),
-                            (float)(oldCluster.LayoutBounds.Y + oldCluster.LayoutBounds.Height * 0.5),
-                            0));
-
-                    ds.DrawImage(transformEffect);
-                }
+                ds.Transform = Matrix3x2.Identity;
             }
         }
-
+       
     }
 }
-

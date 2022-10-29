@@ -22,7 +22,7 @@ namespace TextBlockFX.Win2D.WinUI.Effects
 namespace TextBlockFX.Win2D.UWP.Effects
 #endif
 {
-    public class FireText : ITextEffect
+    public class FireText : ITextEffectAnimated
     {
         public object Sender { get; set; }
         public TimeSpan AnimationDuration { get; set; } = TimeSpan.FromMilliseconds(800);
@@ -117,8 +117,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
             {
                 
                 ds.Clear(Color.FromArgb(0, 0, 0, 0));
-                this.EffectParam.TextFormat.VerticalAlignment = CanvasVerticalAlignment.Top;
-                this.EffectParam.TextFormat.HorizontalAlignment = CanvasHorizontalAlignment.Center;
+               
                 ds.DrawText(
                     this.EffectParam.NewText,
                     0,
@@ -132,7 +131,8 @@ namespace TextBlockFX.Win2D.UWP.Effects
                         FontStyle = this.EffectParam.TextFormat.FontStyle,                      
                         FontSize = this.EffectParam.TextFormat.FontSize,
                         HorizontalAlignment = CanvasHorizontalAlignment.Center,
-                        VerticalAlignment = CanvasVerticalAlignment.Top
+                        VerticalAlignment = CanvasVerticalAlignment.Center,
+                        WordWrapping = this.EffectParam.TextFormat.WordWrapping,
                     });
 
             }

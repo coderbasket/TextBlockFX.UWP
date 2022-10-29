@@ -14,9 +14,9 @@ namespace TextBlockFX.Win2D.UWP.Effects
 #endif
 {
     /// <summary>
-    /// Built-in zoom effect of TextBlockFX
+    /// Built-in elastic effect of TextBlockFX
     /// </summary>
-    public class Zoom : ITextEffect
+    public class Elastic : ITextEffectAnimated
     {
         public object Sender { get; set; }
         /// <inheritdoc />
@@ -154,15 +154,12 @@ namespace TextBlockFX.Win2D.UWP.Effects
                 return;
             }
 
-            float opacityProgress = Easing.UpdateProgress(newCluster.Progress, Easing.EasingFunction.ElasticOut);
-            float zoomProgress = Easing.UpdateProgress(newCluster.Progress, Easing.EasingFunction.ElasticOut);
+            float opacityProgress = Easing.UpdateProgress(newCluster.Progress, Easing.EasingFunction.CubicOut);
+            float bounceProgress = Easing.UpdateProgress((1.0f - newCluster.Progress), Easing.EasingFunction.ElasticIn);
             using (ds.CreateLayer(opacityProgress))
             {
-                ds.Transform = Matrix3x2.CreateScale(zoomProgress,
-                new Vector2((float)(newCluster.LayoutBounds.X +
-                                    newCluster.LayoutBounds.Width * 0.5),
-                                    (float)(newCluster.LayoutBounds.Y +
-                                    newCluster.LayoutBounds.Height * 0.5)));
+                ds.Transform = Matrix3x2.CreateTranslation(0,
+                        (float)newCluster.LayoutBounds.Height * 0.5f * bounceProgress);
 
                 ds.DrawText(
                     newCluster.IsTrimmed
@@ -225,18 +222,16 @@ namespace TextBlockFX.Win2D.UWP.Effects
                 return;
             }
 
-            float oldOpacityProgress = Easing.UpdateProgress(1.0f - oldCluster.Progress, Easing.EasingFunction.ElasticIn);
-            float oldZoomProgress = Easing.UpdateProgress(1.0f - oldCluster.Progress, Easing.EasingFunction.ElasticIn);
-            float newOpacityProgress = Easing.UpdateProgress(newCluster.Progress, Easing.EasingFunction.ElasticOut);
-            float newZoomProgress = Easing.UpdateProgress(newCluster.Progress, Easing.EasingFunction.ElasticOut);
+            float oldOpacityProgress = Easing.UpdateProgress((1.0f - oldCluster.Progress), Easing.EasingFunction.CubicIn);
+            float oldBounceProgress = Easing.UpdateProgress(oldCluster.Progress, Easing.EasingFunction.ElasticOut);
+
+            float newOpacityProgress = Easing.UpdateProgress(newCluster.Progress, Easing.EasingFunction.CubicOut);
+            float newBounceProgress = Easing.UpdateProgress((1.0f - newCluster.Progress), Easing.EasingFunction.ElasticIn);
 
             using (ds.CreateLayer(oldOpacityProgress))
             {
-                ds.Transform = Matrix3x2.CreateScale(oldZoomProgress,
-                    new Vector2((float)(oldCluster.LayoutBounds.X +
-                                        oldCluster.LayoutBounds.Width * 0.5),
-                        (float)(oldCluster.LayoutBounds.Y +
-                                oldCluster.LayoutBounds.Height * 0.5)));
+                ds.Transform = Matrix3x2.CreateTranslation(0,
+                    (float)oldCluster.LayoutBounds.Height * 0.5f * oldBounceProgress);
 
                 ds.DrawText(
                     oldCluster.IsTrimmed
@@ -252,11 +247,8 @@ namespace TextBlockFX.Win2D.UWP.Effects
 
             using (ds.CreateLayer(newOpacityProgress))
             {
-                ds.Transform = Matrix3x2.CreateScale(newZoomProgress,
-                    new Vector2((float)(newCluster.LayoutBounds.X +
-                                        newCluster.LayoutBounds.Width * 0.5),
-                        (float)(newCluster.LayoutBounds.Y +
-                                newCluster.LayoutBounds.Height * 0.5)));
+                ds.Transform = Matrix3x2.CreateTranslation(0,
+                    (float)newCluster.LayoutBounds.Height * newBounceProgress);
 
                 ds.DrawText(
                     newCluster.IsTrimmed
@@ -284,16 +276,15 @@ namespace TextBlockFX.Win2D.UWP.Effects
             {
                 return;
             }
+            
+            float opacityProgress = Easing.UpdateProgress((1.0f - oldCluster.Progress), Easing.EasingFunction.CubicIn);
+            float bounceProgress = Easing.UpdateProgress(oldCluster.Progress, Easing.EasingFunction.ElasticOut);
 
-            float opacityProgress = Easing.UpdateProgress(1.0f - oldCluster.Progress, Easing.EasingFunction.ElasticIn);
-            float zoomProgress = Easing.UpdateProgress(1.0f - oldCluster.Progress, Easing.EasingFunction.ElasticIn);
             using (ds.CreateLayer(opacityProgress))
             {
-                ds.Transform = Matrix3x2.CreateScale(zoomProgress,
-                    new Vector2((float)(oldCluster.LayoutBounds.X +
-                                        oldCluster.LayoutBounds.Width * 0.5),
-                        (float)(oldCluster.LayoutBounds.Y +
-                                oldCluster.LayoutBounds.Height * 0.5)));
+                ds.Transform = Matrix3x2.CreateTranslation(0,
+                    (float)oldCluster.LayoutBounds.Height * 0.5f * bounceProgress);
+
                 ds.DrawText(
                     oldCluster.IsTrimmed
                         ? oldTextLayout.GenerateTrimmingSign()
@@ -306,6 +297,6 @@ namespace TextBlockFX.Win2D.UWP.Effects
                 ds.Transform = Matrix3x2.Identity;
             }
         }
-
+       
     }
 }

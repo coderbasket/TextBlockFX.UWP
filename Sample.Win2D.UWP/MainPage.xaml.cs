@@ -69,7 +69,7 @@ namespace Sample.UWP
             "Weinend sich aus diesem Bund!",
         };
 
-        private ITextEffect _selectedEffect;
+        private ITextEffectAnimated _selectedEffect;
         private int _selectedSampleTextIndex;
 
         public List<BuiltInEffect> BuiltInEffects => new List<BuiltInEffect>()
@@ -88,7 +88,7 @@ namespace Sample.UWP
              new BuiltInEffect("SuperSubScript", new SuperSubscipt())
         };
 
-        public ITextEffect SelectedEffect
+        public ITextEffectAnimated SelectedEffect
         {
             get => _selectedEffect;
             set
@@ -150,15 +150,15 @@ namespace Sample.UWP
             _timer.Interval = TimeSpan.FromMilliseconds(1000);
             _timer.Tick += _timer_Tick;
             _sampleTexts = _inOtherWords;
-            this.TBFX.SuperScripts = new List<WordBoundary>() 
-            { 
-                new WordBoundary() { Words = "5", Length = 1 },
-                new WordBoundary() { Words = "4", Length = 1 },
-                 new WordBoundary() { Words = "6", Length = 1 },
-            };
+            //this.TBFX.SuperScripts = new List<WordBoundary>() 
+            //{ 
+            //    new WordBoundary() { Words = "5", Length = 1 },
+            //    new WordBoundary() { Words = "4", Length = 1 },
+            //     new WordBoundary() { Words = "6", Length = 1 },
+            //};
         }
 
-        private async void MainPage_Loaded(object sender, RoutedEventArgs e)
+        private void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
             for (int i = 0; i < FontStretches.Count; i++)
             {
@@ -277,9 +277,9 @@ namespace Sample.UWP
     {
         public string Name { get; }
 
-        public ITextEffect Effect { get; }
+        public ITextEffectAnimated Effect { get; }
 
-        public BuiltInEffect(string name, ITextEffect effect)
+        public BuiltInEffect(string name, ITextEffectAnimated effect)
         {
             Name = name;
             Effect = effect;

@@ -15,18 +15,17 @@ namespace TextBlockFX.Win2D.UWP.Effects
 #endif
 {
     /// <summary>
-    /// Built-in motion blur effect of TextBlockFX
+    /// Built-in blur effect of TextBlockFX
     /// </summary>
-    public class MotionBlur : ITextEffect
+    public class Blur : ITextEffectAnimated
     {
         public object Sender { get; set; }
         /// <inheritdoc />
         public TimeSpan AnimationDuration { get; set; } = TimeSpan.FromMilliseconds(800);
 
         /// <inheritdoc />
-        public TimeSpan DelayPerCluster { get; set; } = TimeSpan.FromMilliseconds(10);
+        public TimeSpan DelayPerCluster { get; set; } = TimeSpan.FromMilliseconds(20);
 
-        /// <inheritdoc />
         public void Update(string oldText,
             string newText,
             List<TextDiffResult> diffResults,
@@ -55,16 +54,16 @@ namespace TextBlockFX.Win2D.UWP.Effects
             if (diffResults == null)
                 return;
             EffectParam = new TextEffectParam(oldText,
-               newText,
-               diffResults,
-               oldTextLayout,
-               newTextLayout,
-               textFormat,
-               textColor,
-               gradientBrush,
-               state,
-               drawingSession,
-               args);
+                newText,
+                diffResults,
+                oldTextLayout,
+                newTextLayout,
+                textFormat,
+                textColor,
+                gradientBrush,
+                state,
+                drawingSession,
+                args);
             var ds = args.DrawingSession;
 
             if (state == RedrawState.Idle)
@@ -158,9 +157,6 @@ namespace TextBlockFX.Win2D.UWP.Effects
 
             using (CanvasDrawingSession clds = cl.CreateDrawingSession())
             {
-                clds.Transform = Matrix3x2.CreateTranslation(0,
-                    (float)(newCluster.LayoutBounds.Height * newProgress));
-
                 clds.DrawText(
                     newCluster.IsTrimmed
                         ? newTextLayout.GenerateTrimmingSign()
@@ -175,10 +171,9 @@ namespace TextBlockFX.Win2D.UWP.Effects
 
             using (ds.CreateLayer(1.0f - newProgress))
             {
-                using (var blurEffect = new DirectionalBlurEffect())
+                using (var blurEffect = new GaussianBlurEffect())
                 {
                     blurEffect.Source = cl;
-                    blurEffect.Angle = DegreesToRadians(90);
                     blurEffect.BlurAmount = (float)(newProgress * newCluster.DrawBounds.Height * 0.5f);
                     blurEffect.Optimization = EffectOptimization.Speed;
 
@@ -242,9 +237,6 @@ namespace TextBlockFX.Win2D.UWP.Effects
 
             using (CanvasDrawingSession clds = oCl.CreateDrawingSession())
             {
-                clds.Transform = Matrix3x2.CreateTranslation(0,
-                    (float)(-oldCluster.LayoutBounds.Height * 0.5 * oldProgress));
-
                 clds.DrawText(
                     oldCluster.IsTrimmed
                         ? oldTextLayout.GenerateTrimmingSign()
@@ -259,10 +251,9 @@ namespace TextBlockFX.Win2D.UWP.Effects
 
             using (ds.CreateLayer(1.0f - oldProgress))
             {
-                using (var blurEffect = new DirectionalBlurEffect())
+                using (var blurEffect = new GaussianBlurEffect())
                 {
                     blurEffect.Source = oCl;
-                    blurEffect.Angle = DegreesToRadians(90);
                     blurEffect.BlurAmount = (float)(oldProgress * oldCluster.DrawBounds.Height * 0.5f);
                     blurEffect.Optimization = EffectOptimization.Speed;
 
@@ -291,10 +282,9 @@ namespace TextBlockFX.Win2D.UWP.Effects
 
             using (ds.CreateLayer(1.0f - newProgress))
             {
-                using (var blurEffect = new DirectionalBlurEffect())
+                using (var blurEffect = new GaussianBlurEffect())
                 {
                     blurEffect.Source = nCl;
-                    blurEffect.Angle = DegreesToRadians(90);
                     blurEffect.BlurAmount = (float)(newProgress * newCluster.DrawBounds.Height * 0.5f);
                     blurEffect.Optimization = EffectOptimization.Speed;
 
@@ -322,9 +312,6 @@ namespace TextBlockFX.Win2D.UWP.Effects
 
             using (CanvasDrawingSession clds = cl.CreateDrawingSession())
             {
-                clds.Transform = Matrix3x2.CreateTranslation(0,
-                    (float)(-oldCluster.LayoutBounds.Height * 0.5 * oldProgress));
-
                 clds.DrawText(
                     oldCluster.IsTrimmed
                         ? oldTextLayout.GenerateTrimmingSign()
@@ -339,10 +326,9 @@ namespace TextBlockFX.Win2D.UWP.Effects
 
             using (ds.CreateLayer(1.0f - oldProgress))
             {
-                using (var blurEffect = new DirectionalBlurEffect())
+                using (var blurEffect = new GaussianBlurEffect())
                 {
                     blurEffect.Source = cl;
-                    blurEffect.Angle = DegreesToRadians(90);
                     blurEffect.BlurAmount = (float)(oldProgress * oldCluster.DrawBounds.Height * 0.5f);
                     blurEffect.Optimization = EffectOptimization.Speed;
 
@@ -357,5 +343,6 @@ namespace TextBlockFX.Win2D.UWP.Effects
             return (radians);
         }
 
+        
     }
 }

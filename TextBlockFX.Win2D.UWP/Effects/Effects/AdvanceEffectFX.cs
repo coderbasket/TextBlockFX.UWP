@@ -31,7 +31,7 @@ namespace TextBlockFX.Win2D.WinUI.Effects
 namespace TextBlockFX.Win2D.UWP.Effects
 #endif
 {
-    public class AdvanceEffect : ITextEffect
+    public class AdvanceEffectFX : ITextEffect
     {
         public object Sender { get; set; }
         /// <inheritdoc />
@@ -45,8 +45,8 @@ namespace TextBlockFX.Win2D.UWP.Effects
             CanvasTextLayout oldTextLayout,
             CanvasTextLayout newTextLayout,
             RedrawState state,
-            ICanvasAnimatedControl canvas,
-            CanvasAnimatedUpdateEventArgs args)
+            CanvasControl canvas,
+            CanvasDrawEventArgs args)
         {
 
         }
@@ -61,7 +61,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
             CanvasLinearGradientBrush gradientBrush,
             RedrawState state,
             CanvasDrawingSession drawingSession,
-            CanvasAnimatedDrawEventArgs args)
+            CanvasDrawEventArgs args)
         {
             if (diffResults == null)
                 return;
@@ -78,24 +78,20 @@ namespace TextBlockFX.Win2D.UWP.Effects
                 args);
 
             var ds = args.DrawingSession;
-
             EnsureResources(ds);
-            if (state == RedrawState.Idle)
+            if(state == RedrawState.Idle)
             {
-
                 Canvas_Draw(ds, args);
                 return;
             }
-            Canvas_Draw(ds, args);
+
         }
         //Engine
-        public AdvanceEffect()
+        public AdvanceEffectFX()
         {
 
         }
-
-
-
+       
         void EnsureResources(ICanvasResourceCreatorWithDpi resourceCreator)
         {
             var targetSize = this.EffectParam.NewTextLayout.RequestedSize;
@@ -134,7 +130,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
 
 
         bool ShowUnformatted;
-        private void Canvas_Draw(CanvasDrawingSession sender, CanvasAnimatedDrawEventArgs args)
+        private void Canvas_Draw(CanvasDrawingSession sender, CanvasDrawEventArgs args)
         {
             EnsureResources(sender);
            
@@ -156,7 +152,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
         bool applyGlowEffect = false;
         Color _glowColor = Colors.Yellow;
         float _amount = 40;
-        public AdvanceEffect ApplyGlowEffect(Windows.UI.Color glowColor, float amount = 40)
+        public AdvanceEffectFX ApplyGlowEffect(Windows.UI.Color glowColor, float amount = 40)
         {
             _glowColor = glowColor;
             _amount = amount;
@@ -195,7 +191,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
         };
         Color _outlineColor = Colors.Navy;
         bool isOutline = false;
-        public AdvanceEffect ApplyOutlineEffect(Windows.UI.Color outlineColor, CanvasStrokeStyle style = null)
+        public AdvanceEffectFX ApplyOutlineEffect(Windows.UI.Color outlineColor, CanvasStrokeStyle style = null)
         {
             if (style != null)
             {
@@ -230,7 +226,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
         #region Glyph
         Color _glyphColor = Colors.ForestGreen;
         Color semitrans = Colors.White;
-        public AdvanceEffect ApplyGlyphEffect(Color glyphColor, Color semiTransColor)
+        public AdvanceEffectFX ApplyGlyphEffect(Color glyphColor, Color semiTransColor)
         {
             _glyphColor = glyphColor;
             semitrans = semiTransColor;
@@ -291,9 +287,5 @@ namespace TextBlockFX.Win2D.UWP.Effects
         #endregion
 
     }
-    public class ActionOrder
-    {
-        public int Order { get; set; }
-        public Action Action { get; set; }
-    }
+   
 }

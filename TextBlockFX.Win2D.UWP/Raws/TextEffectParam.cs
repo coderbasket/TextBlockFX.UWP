@@ -24,6 +24,7 @@ namespace TextBlockFX.Win2D.UWP
         public RedrawState State { get; }
         public CanvasDrawingSession DrawingSession { get; }
         public CanvasAnimatedDrawEventArgs Arg { get; }
+        public CanvasDrawEventArgs Args { get; }
         public TextEffectParam()
         {
 
@@ -51,6 +52,30 @@ namespace TextBlockFX.Win2D.UWP
             this.State = state;
             this.DrawingSession = drawingSession;
             this.Arg = arg;
+        }
+        public TextEffectParam(string oldText,
+            string newText,
+            List<TextDiffResult> texts,
+            CanvasTextLayout oldTxtLayout,
+            CanvasTextLayout newTextLayout,
+            CanvasTextFormat textFormat,
+            Color textColor,
+            CanvasLinearGradientBrush gradientBrush,
+            RedrawState state,
+            CanvasDrawingSession drawingSession,
+             CanvasDrawEventArgs arg)
+        {
+            this.OldText = oldText;
+            this.NewText = newText;
+            this.DiffResults = texts;
+            this.OldTextLayout = oldTxtLayout;
+            this.NewTextLayout = newTextLayout;
+            this.TextFormat = textFormat;
+            this.TextColor = textColor;
+            this.GradientBrush = gradientBrush;
+            this.State = state;
+            this.DrawingSession = drawingSession;
+            this.Args = arg;
         }
     }
 }
