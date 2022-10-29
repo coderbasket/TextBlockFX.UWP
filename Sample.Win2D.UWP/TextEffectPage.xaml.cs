@@ -101,15 +101,10 @@ namespace Sample.Win2D.UWP
         {
             this.InitializeComponent();
             this.Loaded += MainPage_Loaded;
-            _timer.Interval = TimeSpan.FromMilliseconds(1000);
+            _timer.Interval = TimeSpan.FromMilliseconds(3000);
             _timer.Tick += _timer_Tick;
             _sampleTexts = DataBaseHelper._inOtherWords;
-            //this.TBFX.SuperScripts = new List<WordBoundary>() 
-            //{ 
-            //    new WordBoundary() { Words = "5", Length = 1 },
-            //    new WordBoundary() { Words = "4", Length = 1 },
-            //     new WordBoundary() { Words = "6", Length = 1 },
-            //};
+           
         }
 
         private void MainPage_Loaded(object sender, RoutedEventArgs e)
@@ -164,8 +159,7 @@ namespace Sample.Win2D.UWP
         }
         private void _timer_Tick(object sender, object e)
         {
-            SetSampleText();
-            _timer.Stop();
+            SetSampleText();           
         }
 
         private void InputBox_OnTextChanged(object sender, TextChangedEventArgs e)
@@ -184,6 +178,7 @@ namespace Sample.Win2D.UWP
                 _index = -1;
                 SetSampleText();
                 InputBox.IsEnabled = false;
+                _timer.Start();
             }
             else
             {
@@ -198,13 +193,7 @@ namespace Sample.Win2D.UWP
             TBFX.Text = text;
         }
 
-        private void TBFX_OnRedrawStateChanged(object sender, RedrawState e)
-        {
-            if (AutoPlayButton.IsChecked == true && e == RedrawState.Idle)
-            {
-                _timer.Start();
-            }
-        }
+        
 
         private void EffectComboBox_OnLoaded(object sender, RoutedEventArgs e)
         {

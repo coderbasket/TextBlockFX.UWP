@@ -203,7 +203,26 @@ namespace TextBlockFX.Win2D.UWP
             this.RegisterPropertyChangedCallback(TextBlockFX.FontStretchProperty, FontStretchChangedCallback);
             this.RegisterPropertyChangedCallback(TextBlockFX.FontStyleProperty, FontStyleChangedCallback);
             this.RegisterPropertyChangedCallback(TextBlockFX.FontWeightProperty, FontWeightChangedCallback);
-
+            this.RegisterPropertyChangedCallback(TextBlockFX.TextAlignmentProperty, (s, f) =>
+            { 
+                _textFormat.HorizontalAlignment = Win2dHelpers.MapCanvasHorizontalAlignment(this.TextAlignment);
+                UpdateDrawing();
+            });
+            this.RegisterPropertyChangedCallback(TextBlockFX.TextDirectionProperty, (s, f) =>
+            {
+                _textFormat.Direction = Win2dHelpers.MapTextDirection(this.TextDirection);
+                UpdateDrawing();
+            });
+            this.RegisterPropertyChangedCallback(TextBlockFX.TextTrimmingProperty, (s, f) =>
+            {
+                _textFormat.TrimmingGranularity = Win2dHelpers.MapTrimmingGranularity(this.TextTrimming);
+                UpdateDrawing();
+            });
+            this.RegisterPropertyChangedCallback(TextBlockFX.TextWrappingProperty, (s, f) =>
+            {
+                _textFormat.WordWrapping = Win2dHelpers.MapWordWrapping(this.TextWrapping);
+                UpdateDrawing();
+            });
             _textFormat.TrimmingSign = CanvasTrimmingSign.Ellipsis;
         }
         /// <inheritdoc />
@@ -325,11 +344,11 @@ namespace TextBlockFX.Win2D.UWP
         private void ApplyTextFormat()
         {
             _textFormat.Options = CanvasDrawTextOptions.EnableColorFont | CanvasDrawTextOptions.NoPixelSnap;
-            _textFormat.HorizontalAlignment = Win2dHelpers.MapCanvasHorizontalAlignment(_textAlignment);
+            _textFormat.HorizontalAlignment = Win2dHelpers.MapCanvasHorizontalAlignment(_textAlignment);//✅
             _textFormat.VerticalAlignment = CanvasVerticalAlignment.Center;
-            _textFormat.Direction = Win2dHelpers.MapTextDirection(_textDirection);
-            _textFormat.TrimmingGranularity = Win2dHelpers.MapTrimmingGranularity(_textTrimming);
-            _textFormat.WordWrapping = Win2dHelpers.MapWordWrapping(_textWrapping);
+            _textFormat.Direction = Win2dHelpers.MapTextDirection(_textDirection);//✅
+            _textFormat.TrimmingGranularity = Win2dHelpers.MapTrimmingGranularity(_textTrimming);//✅
+            _textFormat.WordWrapping = Win2dHelpers.MapWordWrapping(_textWrapping);//✅
             UpdateDrawing();
         }
         private void ApplyTextForeground()
