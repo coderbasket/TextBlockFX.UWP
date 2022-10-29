@@ -249,9 +249,22 @@ namespace TextBlockFX.Win2D.UWP
                 _animatedCanvas.CreateResources += AnimatedCanvas_CreateResources;
                 _animatedCanvas.Update += AnimatedCanvas_Update;
                 _animatedCanvas.Draw += AnimatedCanvas_Draw;
+
+                var gcTimer = new DispatcherTimer();
+                gcTimer.Tick += (sender, e) => 
+                { 
+                    GC.Collect();
+                };
+                gcTimer.Interval = TimeSpan.FromSeconds(1);
+                gcTimer.Start();
             }
         }
-
+        public void ClearResources()
+        {
+            this._animatedCanvas.RemoveFromVisualTree();
+            this._animatedCanvas = null;
+           
+        }
         private void TextBlockFX_Loaded(object sender, RoutedEventArgs e)
         {
             _newText = Text ?? string.Empty;
@@ -606,7 +619,7 @@ namespace TextBlockFX.Win2D.UWP
             }
         }
 
-        private void SetRedrawState(RedrawState state, bool fireEvent = true)
+        private async void SetRedrawState(RedrawState state, bool fireEvent = true)
         {
             _currentState = state;
 
@@ -615,7 +628,7 @@ namespace TextBlockFX.Win2D.UWP
 #if WINDOWS
 			    DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Normal, () => RedrawStateChanged?.Invoke(this, _currentState));
 #else
-                Dispatcher.RunAsync(CoreDispatcherPriority.Normal,
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal,
                     () => RedrawStateChanged?.Invoke(this, _currentState)
                 );
 #endif
