@@ -12,7 +12,7 @@ namespace TextBlockFX.Win2D.WinUI
 namespace TextBlockFX.Win2D.UWP
 #endif
 {
-    public interface ITextEffectAnimated
+    public interface ITextEffectAnimated : ITextEffectBase
     {
         
         object Sender { get; set; }

@@ -394,6 +394,7 @@ namespace TextBlockFX.Win2D.UWP
                     args.DrawingSession,
                     args);
             }
+            this._animatedCanvas.Invalidate();
         }
 
         #endregion
