@@ -7,6 +7,7 @@ using Microsoft.Graphics.Canvas.Brushes;
 using Microsoft.Graphics.Canvas.Text;
 using Microsoft.Graphics.Canvas.UI;
 using Microsoft.Graphics.Canvas.UI.Xaml;
+using System.Threading.Tasks;
 
 #if WINDOWS
 using Microsoft.UI;
@@ -36,34 +37,17 @@ namespace TextBlockFX.Win2D.UWP
     public sealed class TextBlockFX : Control
     {
         private CanvasControl _animatedCanvas = null;
-
-        private string _oldText = string.Empty;
         private string _newText = string.Empty;
-
-        private RedrawState _currentState = RedrawState.Idle;
-        private TimeSpan _animationBeginTime;
-
-        private List<TextDiffResult> _diffResults = null;
-
         private CanvasTextFormat _textFormat = new CanvasTextFormat();
         private CanvasLinearGradientBrush _textBrush;
-        private Color _textColor = Colors.Black;
-
-        private CanvasTextLayout _oldTextLayout;
+        private Color _textColor = Colors.White;
         private CanvasTextLayout _newTextLayout;
-
         private ITextEffect _textEffect;
-
-        private float _fontSize = 14;
-        private string _fontFamily = FontFamily.XamlAutoFontFamily.Source;
-        private FontStretch _fontStretch = FontStretch.Normal;
-        private FontStyle _fontStyle = FontStyle.Normal;
-        private FontWeight _fontWeight = FontWeights.Normal;
 
         private TextAlignment _textAlignment = TextAlignment.Left;
         private TextDirection _textDirection = TextDirection.LeftToRightThenTopToBottom;
-        private TextTrimming _textTrimming = TextTrimming.None;
-        private TextWrapping _textWrapping = TextWrapping.NoWrap;
+        private TextTrimming _textTrimming = TextTrimming.WordEllipsis;
+        private TextWrapping _textWrapping = TextWrapping.WrapWholeWords;
 
         #region Properties
 
@@ -81,12 +65,9 @@ namespace TextBlockFX.Win2D.UWP
             get { return (string)GetValue(TextProperty); }
             set
             {
-                _oldText = _newText ?? string.Empty;
                 _newText = value ?? string.Empty;
-
-                SetRedrawState(RedrawState.TextChanged, false);
-
                 SetValue(TextProperty, value);
+                UpdateDrawing();
             }
         }
 
@@ -107,6 +88,7 @@ namespace TextBlockFX.Win2D.UWP
                 _textEffect = value;
                 _textEffect.Sender = this;
                 SetValue(TextEffectProperty, value);
+                UpdateDrawing();              
             }
         }
 
@@ -126,6 +108,7 @@ namespace TextBlockFX.Win2D.UWP
             {
                 _textAlignment = value;
                 SetValue(TextAlignmentProperty, value);
+                UpdateDrawing();
             }
         }
 
@@ -145,6 +128,7 @@ namespace TextBlockFX.Win2D.UWP
             {
                 _textDirection = value;
                 SetValue(TextDirectionProperty, value);
+                UpdateDrawing();
             }
         }
 
@@ -164,6 +148,7 @@ namespace TextBlockFX.Win2D.UWP
             {
                 _textTrimming = value;
                 SetValue(TextTrimmingProperty, value);
+                UpdateDrawing();
             }
         }
 
@@ -183,6 +168,7 @@ namespace TextBlockFX.Win2D.UWP
             {
                 _textWrapping = value;
                 SetValue(TextWrappingProperty, value);
+                UpdateDrawing();
             }
         }
 
@@ -192,7 +178,7 @@ namespace TextBlockFX.Win2D.UWP
             get { return _superScripts; }
             set
             {
-                _superScripts = value;            
+                _superScripts = value;
             }
         }
         List<WordBoundary> _subScripts;
@@ -204,21 +190,8 @@ namespace TextBlockFX.Win2D.UWP
                 _subScripts = value;
             }
         }
-        /// <summary>
-        /// Gets whether TextBlockFX is animating the text.
-        /// </summary>
-        public bool IsAnimating => _currentState != RedrawState.Idle;
 
         #endregion
-
-        /// <summary>
-        /// Occurs when the redraw state has changed.
-        /// </summary>
-        public event EventHandler<RedrawState> RedrawStateChanged;
-
-        /// <summary>
-        /// Initializes a new instance of the TextBlockFX class.
-        /// </summary>
         public TextBlockFX()
         {
             this.DefaultStyleKey = typeof(TextBlockFX);
@@ -246,7 +219,7 @@ namespace TextBlockFX.Win2D.UWP
 
             if (_animatedCanvas != null)
             {
-                _animatedCanvas.CreateResources += AnimatedCanvas_CreateResources;                
+                _animatedCanvas.CreateResources += AnimatedCanvas_CreateResources;
                 _animatedCanvas.Draw += AnimatedCanvas_Draw;
             }
         }
@@ -254,13 +227,11 @@ namespace TextBlockFX.Win2D.UWP
         private void TextBlockFX_Loaded(object sender, RoutedEventArgs e)
         {
             _newText = Text ?? string.Empty;
-
-            SetRedrawState(RedrawState.TextChanged, false);
         }
 
         private void TextBlockFX_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            SetRedrawState(RedrawState.LayoutChanged);
+            UpdateDrawing();
         }
 
         #region Property Changed Callbacks
@@ -271,29 +242,33 @@ namespace TextBlockFX.Win2D.UWP
         }
         private void FontFamilyChangedCallback(DependencyObject sender, DependencyProperty dp)
         {
-            _fontFamily = FontFamily.Source;
+            _textFormat.FontFamily = FontFamily.Source;
+            UpdateDrawing();
         }
         private void FontSizeChangedCallback(DependencyObject sender, DependencyProperty dp)
         {
-            _fontSize = (float)FontSize;
+            _textFormat.FontSize = (float)FontSize;
+            UpdateDrawing();
         }
         private void FontStretchChangedCallback(DependencyObject sender, DependencyProperty dp)
         {
-            _fontStretch = FontStretch;
+            _textFormat.FontStretch = FontStretch;
+            UpdateDrawing();
         }
 
         private void FontStyleChangedCallback(DependencyObject sender, DependencyProperty dp)
         {
-            _fontStyle = FontStyle;
+            _textFormat.FontStyle = FontStyle;
+            UpdateDrawing();
         }
         private void FontWeightChangedCallback(DependencyObject sender, DependencyProperty dp)
         {
-            _fontWeight = FontWeight;
+            _textFormat.FontWeight = FontWeight;
+            UpdateDrawing();
         }
         #endregion
 
         #region Canvas Events
-
         private void AnimatedCanvas_CreateResources(CanvasControl sender,
             CanvasCreateResourcesEventArgs args)
         {
@@ -313,109 +288,50 @@ namespace TextBlockFX.Win2D.UWP
             }
         }
 
-        private void Canvas_Update(CanvasControl sender, CanvasDrawEventArgs args)
-        {
-            if (_textEffect == null)
-            {
-                SetRedrawState(RedrawState.Idle);
-                return;
-            }
-
-            if (_currentState == RedrawState.LayoutChanged)
-            {
-                ApplyTextFormat();
-
-                if (_newTextLayout == null)
-                {
-                    SetRedrawState(RedrawState.Idle);
-                }
-                else
-                {
-                    _oldText = _newText;
-                    _oldTextLayout = _newTextLayout;
-
-                    GenerateNewTextLayout(sender);
-
-                    GenerateDiffResults();
-                   
-
-                    SetRedrawState(RedrawState.Animating);
-                }
-            }
-
-            if (_currentState == RedrawState.TextChanged)
-            {
-                ApplyTextFormat();
-                
-                GenerateOldTextLayout(sender);
-                
-                GenerateNewTextLayout(sender);
-                
-                GenerateDiffResults();              
-            }
-
-            
-
-            _textEffect.Update(_oldText,
-                _newText,
-                _diffResults,
-                _oldTextLayout,
-                _newTextLayout,
-                _currentState,
-                sender,
-                args);
-        }
-
         private void AnimatedCanvas_Draw(CanvasControl sender, CanvasDrawEventArgs args)
         {
             args.DrawingSession.Clear(Colors.Transparent);
 
             if (_textEffect == null)
             {
-                CanvasTextLayout ctl = new CanvasTextLayout(sender,
-                    _newText,
-                    _textFormat,
-                    (float)sender.Size.Width,
-                    (float)sender.Size.Height);
+                CanvasTextLayout ctl = new CanvasTextLayout(sender, _newText,_textFormat, (float)sender.Size.Width, (float)sender.Size.Height);
                 ctl.Options = CanvasDrawTextOptions.EnableColorFont;
-
                 args.DrawingSession.DrawTextLayout(ctl, 0, 0, _textColor);
             }
             else
             {
-                _textEffect?.DrawText(_oldText,
-                    _newText,
-                    _diffResults,
-                    _oldTextLayout,
-                    _newTextLayout,
-                    _textFormat, _textColor,
-                    _textBrush,
-                    _currentState,
-                    args.DrawingSession,
-                    args);
+                GenerateNewTextLayout(sender);
+                var effectParam = new EffectParam(_newText, _textColor, _textFormat, _newTextLayout, sender, args);
+                _textEffect?.DrawText(effectParam);
             }
-            this._animatedCanvas.Invalidate();
         }
 
         #endregion
 
         #region Helpers
-
+        bool process = false;
+        async void UpdateDrawing()
+        {
+            if(_animatedCanvas!= null)
+            {
+                if (process)
+                    return;
+                process = true;
+                this._animatedCanvas.Invalidate();
+                await Task.Delay(500);
+                process = false;
+            }
+        }
         private void ApplyTextFormat()
         {
-            _textFormat.FontSize = _fontSize;
-            _textFormat.FontFamily = _fontFamily;
-            _textFormat.FontStretch = _fontStretch;
-            _textFormat.FontStyle = _fontStyle;
-            _textFormat.FontWeight = _fontWeight;
             _textFormat.Options = CanvasDrawTextOptions.EnableColorFont | CanvasDrawTextOptions.NoPixelSnap;
             _textFormat.HorizontalAlignment = Win2dHelpers.MapCanvasHorizontalAlignment(_textAlignment);
             _textFormat.VerticalAlignment = CanvasVerticalAlignment.Center;
             _textFormat.Direction = Win2dHelpers.MapTextDirection(_textDirection);
             _textFormat.TrimmingGranularity = Win2dHelpers.MapTrimmingGranularity(_textTrimming);
             _textFormat.WordWrapping = Win2dHelpers.MapWordWrapping(_textWrapping);
+            UpdateDrawing();
         }
-
         private void ApplyTextForeground()
         {
             if (Foreground is SolidColorBrush colorBrush)
@@ -449,17 +365,8 @@ namespace TextBlockFX.Win2D.UWP
                     _textBrush = null;
                 }
             }
+            UpdateDrawing();
         }
-
-        private void GenerateOldTextLayout(CanvasControl resourceCreator)
-        {
-            _oldTextLayout = new CanvasTextLayout(resourceCreator, _oldText, _textFormat,
-                (float)(resourceCreator.Size.Width),
-                (float)(resourceCreator.Size.Height));
-            _oldTextLayout.Options = CanvasDrawTextOptions.EnableColorFont | CanvasDrawTextOptions.NoPixelSnap;
-            _oldTextLayout.VerticalAlignment = CanvasVerticalAlignment.Center;
-        }
-        
         private void GenerateNewTextLayout(CanvasControl resourceCreator)
         {
             _newTextLayout = new CanvasTextLayout(resourceCreator, _newText, _textFormat,
@@ -467,152 +374,11 @@ namespace TextBlockFX.Win2D.UWP
                 (float)(resourceCreator.Size.Height));
             _newTextLayout.Options = CanvasDrawTextOptions.EnableColorFont | CanvasDrawTextOptions.NoPixelSnap;
             _newTextLayout.VerticalAlignment = CanvasVerticalAlignment.Center;
+            UpdateDrawing();
         }
 
-        private void GenerateDiffResults()
-        {
-            var oldGraphemeClusters = TextRenderingHelper.GenerateGraphemeClusters(_oldText, _oldTextLayout);
-            var newGraphemeClusters = TextRenderingHelper.GenerateGraphemeClusters(_newText, _newTextLayout);
 
-            _diffResults = GraphemeClusterDiff.Diff(oldGraphemeClusters, newGraphemeClusters);
-        }
 
-        private void UpdateAllClusterProgress(CanvasTimingInformation timing)
-        {
-            var animationDuration = _textEffect?.AnimationDuration ?? TimeSpan.FromMilliseconds(600);
-            var delayPerCluster = _textEffect?.DelayPerCluster ?? TimeSpan.FromMilliseconds(0);
-
-            float step = (float)(1 / (animationDuration.TotalMilliseconds / timing.ElapsedTime.TotalMilliseconds));
-
-            var delay = delayPerCluster <= animationDuration ? delayPerCluster : animationDuration;
-
-            int insertDelayOffset = 0;
-            int moveDelayOffset = 0;
-            int removeDelayOffset = 0;
-            int updateDelayOffset = 0;
-
-            int ongoingAnimations = 0;
-
-            for (int i = 0; i < _diffResults.Count; i++)
-            {
-                var diffResult = _diffResults[i];
-                var oldCluster = diffResult.OldGlyphCluster;
-                var newCluster = diffResult.NewGlyphCluster;
-
-                int delayOffset = 0;
-
-                switch (diffResult.Type)
-                {
-                    default:
-                    case DiffOperationType.Move:
-                        delayOffset = removeDelayOffset;
-                        removeDelayOffset += 1;
-                        break;
-                    case DiffOperationType.Insert:
-                        delayOffset = insertDelayOffset;
-                        insertDelayOffset += 1;
-                        break;
-                    case DiffOperationType.Remove:
-                        delayOffset = moveDelayOffset;
-                        moveDelayOffset += 1;
-                        break;
-                    case DiffOperationType.Update:
-                        delayOffset = updateDelayOffset;
-                        updateDelayOffset += 1;
-                        break;
-                }
-
-                if (!UpdateClusterProgress(oldCluster, delayOffset, step, delay, timing))
-                {
-                    ongoingAnimations += 1;
-                }
-
-                if (!UpdateClusterProgress(newCluster, delayOffset, step, delay, timing))
-                {
-                    ongoingAnimations += 1;
-                }
-            }
-
-            if (ongoingAnimations < 1)
-            {
-                SetRedrawState(RedrawState.Idle);
-            }
-        }
-
-        /// <summary>
-        /// Update progress of every cluster.
-        /// </summary>
-        /// <param name="cluster">Target cluster.</param>
-        /// <param name="offset">Index of target cluster</param>
-        /// <param name="step">Incremental step of the progress</param>
-        /// <param name="delay">Duration of delay</param>
-        /// <param name="timing">Timing info</param>
-        /// <returns>If the animation of the cluster is finished</returns>
-        private bool UpdateClusterProgress(GraphemeCluster cluster,
-            int offset,
-            float step,
-            TimeSpan delay,
-            CanvasTimingInformation timing)
-        {
-            if (cluster == null)
-                return true;
-
-            var duration = _textEffect?.AnimationDuration ?? TimeSpan.FromMilliseconds(0);
-
-            bool isFinished = timing.TotalTime.TotalMilliseconds >=
-                              (_animationBeginTime.TotalMilliseconds +
-                               delay.TotalMilliseconds * offset +
-                               duration.TotalMilliseconds);
-
-            if (isFinished)
-            {
-                cluster.Progress = 1.0f;
-                cluster.IsAnimationFinished = true;
-                return true;
-            }
-
-            float progress = cluster.Progress + step;
-
-            if ((timing.TotalTime.TotalMilliseconds - _animationBeginTime.TotalMilliseconds <
-                 delay.TotalMilliseconds * offset))
-            {
-                progress = 0;
-            }
-
-            progress = Math.Clamp(progress, 0, 1.0f);
-
-            cluster.Progress = progress;
-
-            return false;
-        }
-
-        private void ResetAllClusterProgress()
-        {
-            foreach (var diffResult in _diffResults)
-            {
-                var oldCluster = diffResult.OldGlyphCluster;
-                var newCluster = diffResult.NewGlyphCluster;
-
-                oldCluster.Progress = 0;
-                newCluster.Progress = 0;
-            }
-        }
-
-        private void SetRedrawState(RedrawState state, bool fireEvent = true)
-        {
-            _currentState = state;
-
-            if (fireEvent)
-            {
-#if WINDOWS
-			    DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Normal, () => RedrawStateChanged?.Invoke(this, _currentState));
-#else
-                Dispatcher.RunAsync(CoreDispatcherPriority.Normal,
-                    () => RedrawStateChanged?.Invoke(this, _currentState)
-                );
-#endif
-            }
-        }
 
         #endregion
     }

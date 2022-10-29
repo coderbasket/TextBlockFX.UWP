@@ -144,7 +144,7 @@
             FontStretch="{Binding ElementName=FontStretchComboBox, Path=SelectedValue, Mode=OneWay}"
             FontStyle="{Binding ElementName=FontStyleComboBox, Path=SelectedValue, Mode=OneWay}"
             FontWeight="{Binding ElementName=FontWeightComboBox, Path=SelectedValue, Mode=OneWay}"
-            RedrawStateChanged="TBFX_OnRedrawStateChanged"
+            
             TextAlignment="Center"
             TextTrimming="CharacterEllipsis"
             TextWrapping="WrapWholeWords" />

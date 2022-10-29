@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace TextBlockFX.Win2D.UWP
 {
-    public interface ITextEffectBase
+    public class ActionOrder
     {
-
+        public int Order { get; set; }
+        public Action Action { get; set; }
     }
 }
