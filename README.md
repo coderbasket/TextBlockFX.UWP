@@ -77,6 +77,6 @@ TextBlockFX only support UWP projects for now. WinUI3 support and Skiasharp base
 
 ### Write Your Own Effect
 
-* Define a new effect class and implement the `ITextEffect` interface.
+* Define a new effect class and implement the `ITextEffectAnimated` for CanvasAnimationControl (USED GPU), `ITextEffect` for CanvasControl (NORMAL MEMORY) interface.
 * Draw the text by using Win2D API.
 
