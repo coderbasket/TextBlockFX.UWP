@@ -24,6 +24,7 @@ using Microsoft.Graphics.Canvas.UI;
 using Size = Windows.Foundation.Size;
 using Microsoft.Graphics.Canvas.Geometry;
 using Windows.UI.Xaml.Media;
+using static TextBlockFX.Win2D.UWP.Effects.OutlineTextAnimated;
 
 #if WINDOWS
 namespace TextBlockFX.Win2D.WinUI.Effects
@@ -39,7 +40,8 @@ namespace TextBlockFX.Win2D.UWP.Effects
         public AdvanceEffect()
         {
 
-        }        
+        }
+        
         public void DrawText(EffectParam effectParam)
         {
             this.Tf = effectParam;
@@ -53,7 +55,9 @@ namespace TextBlockFX.Win2D.UWP.Effects
                 action.Action.Invoke();
             }
             var session = this.Tf.Args.DrawingSession;                        
-            session.DrawTextLayout(this.Tf.TextLayout, 0,0, this.Tf.TextColor);    
+            session.DrawTextLayout(this.Tf.TextLayout, 0,0, this.Tf.TextColor);
+            SetWordsBoundary();
+            //actionOrders.Clear();
             
         }
         #region GlowEffect
@@ -124,7 +128,7 @@ namespace TextBlockFX.Win2D.UWP.Effects
             var textGeometry = converter.GetGeometry();
             float strokeWidth = 15.0f;
 
-            this.Tf.Args.DrawingSession.DrawGeometry(textGeometry, Colors.Blue, strokeWidth, dashedStroke);
+            this.Tf.Args.DrawingSession.DrawGeometry(textGeometry, _outlineColor, strokeWidth, dashedStroke);
 
         }
         #endregion
@@ -154,7 +158,49 @@ namespace TextBlockFX.Win2D.UWP.Effects
             var textReference = CanvasGeometry.CreateText(this.Tf.TextLayout);
             this.Tf.Args.DrawingSession.DrawGeometry(textReference, semitrans, strokeWidth);
         }
+
+
         #endregion
+        Color _undelineColor = Colors.OrangeRed;
+        bool u_colorSet = false;
+        public AdvanceEffect SetUndelineColor(Color undelineColor)
+        {
+            _undelineColor = undelineColor;
+            u_colorSet = true;
+            return this;
+        }
+        void SetWordsBoundary()
+        {
+            if (Sender == null)
+                return;
+            if(Sender is TextBlockFX fx)
+            {
+                if(fx.UnderlineWords?.Count> 0)
+                {
+                    foreach (var wb in fx.UnderlineWords)
+                    {
+                        var startIndex = this.Tf.Text.IndexOf(wb.Words);
+                        this.Tf.TextLayout.SetUnderline(startIndex, wb.Words.Length, true);
+                    }
+                    //var textGeometry = CanvasGeometry.CreateText(this.Tf.TextLayout);
+                    //GlyphRunsToGeometryConverter converter = new GlyphRunsToGeometryConverter(Tf.Canvas);
+                    //textGeometry = converter.GetGeometry();
+                    //this.Tf.TextLayout.DrawToTextRenderer(converter, 0, 0);
+                    //float strokeWidth = 15.0f;
+
+                    //Tf.Args.DrawingSession.DrawGeometry(textGeometry, Colors.ForestGreen, strokeWidth, dashedStroke);
+                    Color semitrans = Tf.TextColor;
+                    if (u_colorSet)
+                        semitrans = _undelineColor;
+                    semitrans.A = 127;
+                    Tf.Args.DrawingSession.DrawTextLayout(this.Tf.TextLayout, 0, 0, semitrans);
+                   
+                }
+                
+            }
+        }
+        bool process = false;
+       
     }
 
 }

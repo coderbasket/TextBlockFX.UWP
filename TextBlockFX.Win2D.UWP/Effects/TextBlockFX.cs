@@ -193,7 +193,15 @@ namespace TextBlockFX.Win2D.UWP
                 _subScripts = value;
             }
         }
-
+        List<WordBoundary> _undelineWords;
+        public List<WordBoundary> UnderlineWords
+        {
+            get { return _undelineWords; }
+            set
+            {
+                _undelineWords = value;
+            }
+        }
         #endregion
         public TextBlockFX()
         {

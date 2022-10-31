@@ -18,6 +18,7 @@ namespace TextBlockFX.Win2D.UWP
         object Sender { get; set; }
         void DrawText(EffectParam effectParam);
       
+      
     }
     
 }
